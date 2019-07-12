@@ -119,14 +119,8 @@ class TokenInterceptor implements ClientHttpRequestInterceptor {
 	public ClientHttpResponse intercept(
 		HttpRequest request, byte[] body,
 		ClientHttpRequestExecution execution) throws IOException {
-
 		var token = this.ensureToken();
-		var tokenString = token.getToken();
-//		log.info("token: " + token.getToken());
-//		log.info("expiration: " + token.getExpiration());
-
-		request.getHeaders().setBearerAuth(tokenString);
-
+		request.getHeaders().setBearerAuth(token.getToken());
 		return execution.execute(request, body);
 	}
 }
