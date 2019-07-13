@@ -1,27 +1,23 @@
 package fm.bootifulpodcast.integration;
 
-import fm.bootifulpodcast.podbean.Podcast;
+import fm.bootifulpodcast.podbean.PodbeanClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
-import java.util.Collection;
-import java.util.Map;
-
+@Log4j2
 @Component
 @RequiredArgsConstructor
-@Log4j2
 class Listener {
 
-	private final RestTemplate template;
+	private final PodbeanClient client;
 
 	@EventListener(ApplicationReadyEvent.class)
 	public void go() {
+		// get podcasts
+		// this.client.getAllPodcasts().forEach(p -> log.info(p.toString()));
 
 	}
 
