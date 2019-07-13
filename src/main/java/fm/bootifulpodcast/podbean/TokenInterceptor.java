@@ -24,25 +24,34 @@ import java.util.concurrent.atomic.AtomicReference;
 @Log4j2
 public class TokenInterceptor implements ClientHttpRequestInterceptor {
 
+	private final URI uri;
+
 	private final AtomicReference<Token> token = new AtomicReference<>();
 
 	private final RestTemplate template;
 
-	public TokenInterceptor(String clientId, String clientSecret) {
-		this(new RestTemplateBuilder().basicAuthentication(clientId, clientSecret).build());
+	URI getTokenUri() {
+		return this.uri;
 	}
 
-	// testing
-	TokenInterceptor(RestTemplate restTemplate) {
+	public TokenInterceptor(URI uri, String clientId, String clientSecret) {
+		this(uri, new RestTemplateBuilder().basicAuthentication(clientId, clientSecret)
+				.build());
+	}
+
+	TokenInterceptor(URI u, RestTemplate restTemplate) {
 		this.template = restTemplate;
+		this.uri = u != null ? u : URI.create("https://api.podbean.com/v1/oauth/token");
 	}
 
-	// testing
 	@Data
 	@RequiredArgsConstructor
 	static class Token {
+
 		private final String token;
+
 		private final long expiration;
+
 	}
 
 	// testing
@@ -51,21 +60,23 @@ public class TokenInterceptor implements ClientHttpRequestInterceptor {
 		var minute = 1000 * 60;
 		var currentToken = this.token.get();
 		var shouldEvaluate = currentToken == null
-			|| (currentToken.getExpiration() - minute) < System.currentTimeMillis();
+				|| (currentToken.getExpiration() - minute) < System.currentTimeMillis();
 		if (shouldEvaluate) {
-			log.info("We need to obtain a fresh token, the old one expired.");
+			if (log.isDebugEnabled()) {
+				log.debug("We need to obtain a fresh token, the old one expired.");
+			}
 			var request = Map.of("grant_type", "client_credentials");
-			var url = URI.create("https://api.podbean.com/v1/oauth/token");
 			var type = new ParameterizedTypeReference<Map<String, String>>() {
 			};
-			var responseEntity = this.template.exchange(url, HttpMethod.POST,
-				new HttpEntity<>(request), type);
+			var responseEntity = this.template.exchange(this.uri, HttpMethod.POST,
+					new HttpEntity<>(request), type);
+			Assert.notNull(responseEntity, "the response should not be null");
 			if (responseEntity.getStatusCode().is2xxSuccessful()) {
 				var map = Objects.requireNonNull(responseEntity.getBody());
 				var accessToken = map.get("access_token");
 				var expiry = Long.parseLong(map.get("expires_in"));
 				var newToken = new Token(accessToken,
-					System.currentTimeMillis() + expiry);
+						System.currentTimeMillis() + expiry);
 				this.token.set(newToken);
 			}
 		}
@@ -76,7 +87,7 @@ public class TokenInterceptor implements ClientHttpRequestInterceptor {
 
 	@Override
 	public ClientHttpResponse intercept(HttpRequest request, byte[] body,
-																																					ClientHttpRequestExecution execution) throws IOException {
+			ClientHttpRequestExecution execution) throws IOException {
 		var token = this.ensureToken();
 		request.getHeaders().setBearerAuth(token.getToken());
 		return execution.execute(request, body);

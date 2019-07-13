@@ -9,15 +9,22 @@
         <version>2.2.0.M3</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
+
     <groupId>fm.bootifulpodcast</groupId>
-    <artifactId>podbean-integration</artifactId>
+    <artifactId>podbean-client</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <properties>
+        <spring-cloud.version>Hoxton.M1</spring-cloud.version>
         <java.version>11</java.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-contract-stub-runner</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
@@ -89,6 +96,17 @@
         </plugins>
     </build>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 
     <repositories>

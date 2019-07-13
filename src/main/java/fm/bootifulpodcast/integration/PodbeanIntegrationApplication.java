@@ -9,4 +9,5 @@ public class PodbeanIntegrationApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(PodbeanIntegrationApplication.class, args);
 	}
+
 }

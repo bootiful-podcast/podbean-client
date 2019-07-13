@@ -15,19 +15,22 @@ public class PodbeanAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	RestTemplate restTemplate(RestTemplateBuilder builder, TokenInterceptor tokenInterceptor) {
+	RestTemplate restTemplate(RestTemplateBuilder builder,
+			TokenInterceptor tokenInterceptor) {
 		return builder.interceptors(tokenInterceptor).build();
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
-	TokenInterceptor tokenInterceptor(@Value("${podbean.client-id}") String clientId, @Value("${podbean.client-secret}") String clientSecret) {
-		return new TokenInterceptor(clientId, clientSecret);
+	TokenInterceptor tokenInterceptor(@Value("${podbean.client-id}") String clientId,
+			@Value("${podbean.client-secret}") String clientSecret) {
+		return new TokenInterceptor(null, clientId, clientSecret);
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
-	SimplePodbeanClient podbeanClient(RestTemplate template) {
+	PodbeanClient podbeanClient(RestTemplate template) {
 		return new SimplePodbeanClient(template);
 	}
+
 }
