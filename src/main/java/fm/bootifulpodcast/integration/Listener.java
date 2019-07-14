@@ -16,9 +16,8 @@ class Listener {
 
 	@EventListener(ApplicationReadyEvent.class)
 	public void go() {
-		// get podcasts
-		// this.client.getAllPodcasts().forEach(p -> log.info(p.toString()));
-
+		log.info("going..");
+		this.client.getAllPodcasts().forEach(log::info);
 	}
 
 }
