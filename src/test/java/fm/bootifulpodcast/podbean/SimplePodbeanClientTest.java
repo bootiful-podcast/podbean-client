@@ -57,8 +57,8 @@ class SimplePodbeanClientTest {
 				System.getenv("PODBEAN_CLIENT_ID"),
 				System.getenv("PODBEAN_CLIENT_SECRET"));
 		var builder = new RestTemplateBuilder();
-		var client = new SimplePodbeanClient(builder.build());
 		var rt = builder.interceptors(tokenInterceptor).build();
+		var client = new SimplePodbeanClient(rt);
 		var mediaType = MediaType.parseMediaType("audio/mpeg");
 		var filePath = new File("/Users/joshlong/code/bootiful-podcast/assets/intro.mp3");
 		var resource = new FileSystemResource(filePath);
