@@ -1,5 +1,7 @@
 package fm.bootifulpodcast.podbean;
 
+import fm.bootifulpodcast.podbean.token.TokenInterceptor;
+import fm.bootifulpodcast.podbean.token.TokenProvider;
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,27 +22,30 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 
 class TokenInterceptorTest {
 
-	String expiry = Long.toString(10 * 1000);
+	private String expiry = Long.toString(10 * 1000);
 
-	String token = "1234";
+	private String token = "1234";
 
-	MockRestServiceServer server;
+	private MockRestServiceServer server;
 
-	RestTemplate restTemplate;
+	private RestTemplate restTemplate;
 
-	TokenInterceptor interceptor;
+	private TokenInterceptor interceptor;
+
+	private TokenProvider tokenProvider;
 
 	@BeforeEach
 	void start() {
+		this.tokenProvider = new TokenProvider(this.restTemplate);
 		this.restTemplate = new RestTemplate();
-		this.interceptor = new TokenInterceptor(null, this.restTemplate);
+		this.interceptor = new TokenInterceptor(this.tokenProvider);
 		this.server = this.init();
 	}
 
 	@Test
 	void vendNewToken() {
 		MockRestServiceServer server = init();
-		var tokenObj = interceptor.ensureToken();
+		var tokenObj = this.tokenProvider.getToken();
 		Assert.assertTrue(
 				tokenObj.getExpiration() > System.currentTimeMillis() + (8 * 1000));
 		Assert.assertEquals(tokenObj.getToken(), this.token);
@@ -59,7 +64,7 @@ class TokenInterceptorTest {
 
 	private MockRestServiceServer init() {
 		var server = MockRestServiceServer.bindTo(restTemplate).build();
-		server.expect(ExpectedCount.once(), requestTo(interceptor.getTokenUri()))
+		server.expect(ExpectedCount.once(), requestTo(tokenProvider.getTokenUri()))
 				.andExpect(method(HttpMethod.POST)).andRespond(
 						MockRestResponseCreators.withSuccess(
 								"{\"access_token\": \"" + token

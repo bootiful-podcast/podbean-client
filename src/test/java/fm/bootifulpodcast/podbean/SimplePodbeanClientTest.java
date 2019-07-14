@@ -1,7 +1,10 @@
 package fm.bootifulpodcast.podbean;
 
+import fm.bootifulpodcast.podbean.token.TokenInterceptor;
+import fm.bootifulpodcast.podbean.token.TokenProvider;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpMethod;
@@ -22,7 +25,8 @@ class SimplePodbeanClientTest {
 	@Test
 	void getAllPodcasts() {
 		var restTemplate = new RestTemplate();
-		var client = new SimplePodbeanClient(restTemplate);
+		var tp = Mockito.mock(TokenProvider.class);
+		var client = new SimplePodbeanClient(tp, restTemplate);
 		var logo = "https://pbcdn1.podbean.com/imglogo/image-logo/5518947/photo.jpg";
 		var title = "The starbuxman's Podcast";
 		var website = "https://starbuxman.podbean.com";
@@ -53,12 +57,14 @@ class SimplePodbeanClientTest {
 
 	@Test
 	void uploadFile() {
-		var tokenInterceptor = new TokenInterceptor(null,
-				System.getenv("PODBEAN_CLIENT_ID"),
-				System.getenv("PODBEAN_CLIENT_SECRET"));
+		var tokenProvider = new TokenProvider(//
+				System.getenv("PODBEAN_CLIENT_ID"), //
+				System.getenv("PODBEAN_CLIENT_SECRET")//
+		);
+		var tokenInterceptor = new TokenInterceptor(tokenProvider);
 		var builder = new RestTemplateBuilder();
-		var rt = builder.interceptors(tokenInterceptor).build();
-		var client = new SimplePodbeanClient(rt);
+		var restTemplate = builder.interceptors(tokenInterceptor).build();
+		var client = new SimplePodbeanClient(tokenProvider, restTemplate);
 		var mediaType = MediaType.parseMediaType("audio/mpeg");
 		var filePath = new File("/Users/joshlong/code/bootiful-podcast/assets/intro.mp3");
 		var resource = new FileSystemResource(filePath);

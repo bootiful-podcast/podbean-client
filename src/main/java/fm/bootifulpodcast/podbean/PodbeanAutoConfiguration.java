@@ -1,5 +1,7 @@
 package fm.bootifulpodcast.podbean;
 
+import fm.bootifulpodcast.podbean.token.TokenInterceptor;
+import fm.bootifulpodcast.podbean.token.TokenProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -22,15 +24,21 @@ public class PodbeanAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	TokenInterceptor tokenInterceptor(@Value("${podbean.client-id}") String clientId,
-			@Value("${podbean.client-secret}") String clientSecret) {
-		return new TokenInterceptor(null, clientId, clientSecret);
+	TokenInterceptor tokenInterceptor(TokenProvider tokenProvider) {
+		return new TokenInterceptor(tokenProvider);
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
-	PodbeanClient podbeanClient(RestTemplate template) {
-		return new SimplePodbeanClient(template);
+	TokenProvider tokenProvider(@Value("${podbean.client-id}") String clientId,
+			@Value("${podbean.client-secret}") String clientSecret) {
+		return new TokenProvider(clientId, clientSecret);
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	PodbeanClient podbeanClient(TokenProvider provider, RestTemplate template) {
+		return new SimplePodbeanClient(provider, template);
 	}
 
 }

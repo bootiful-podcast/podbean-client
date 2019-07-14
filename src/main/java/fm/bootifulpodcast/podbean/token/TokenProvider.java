@@ -1,28 +1,21 @@
-package fm.bootifulpodcast.podbean;
+package fm.bootifulpodcast.podbean.token;
 
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpRequest;
-import org.springframework.http.client.ClientHttpRequestExecution;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
-import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Log4j2
-public class TokenInterceptor implements ClientHttpRequestInterceptor {
+public class TokenProvider {
 
 	private final URI uri;
 
@@ -30,33 +23,23 @@ public class TokenInterceptor implements ClientHttpRequestInterceptor {
 
 	private final RestTemplate template;
 
-	URI getTokenUri() {
+	public URI getTokenUri() {
 		return this.uri;
 	}
 
-	public TokenInterceptor(URI uri, String clientId, String clientSecret) {
-		this(uri, new RestTemplateBuilder().basicAuthentication(clientId, clientSecret)
+	public TokenProvider(String clientId, String clientSecret) {
+		this(new RestTemplateBuilder().basicAuthentication(clientId, clientSecret)
 				.build());
 	}
 
-	TokenInterceptor(URI u, RestTemplate restTemplate) {
+	public TokenProvider(RestTemplate restTemplate) {
 		this.template = restTemplate;
-		this.uri = u != null ? u : URI.create("https://api.podbean.com/v1/oauth/token");
-	}
-
-	@Data
-	@RequiredArgsConstructor
-	static class Token {
-
-		private final String token;
-
-		private final long expiration;
-
+		this.uri = URI.create("https://api.podbean.com/v1/oauth/token");
 	}
 
 	// testing
 	@SneakyThrows
-	Token ensureToken() {
+	public Token getToken() {
 		var minute = 1000 * 60;
 		var currentToken = this.token.get();
 		var shouldEvaluate = currentToken == null
@@ -78,19 +61,12 @@ public class TokenInterceptor implements ClientHttpRequestInterceptor {
 				var newToken = new Token(accessToken,
 						System.currentTimeMillis() + expiry);
 				this.token.set(newToken);
+				log.info("the new token: " + this.token.get());
 			}
 		}
 		var token = this.token.get();
 		Assert.notNull(token, "the token must be non-null");
 		return token;
-	}
-
-	@Override
-	public ClientHttpResponse intercept(HttpRequest request, byte[] body,
-			ClientHttpRequestExecution execution) throws IOException {
-		var token = this.ensureToken();
-		request.getHeaders().setBearerAuth(token.getToken());
-		return execution.execute(request, body);
 	}
 
 }

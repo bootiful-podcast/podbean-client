@@ -1,6 +1,8 @@
 package fm.bootifulpodcast.podbean;
 
+import fm.bootifulpodcast.podbean.token.TokenProvider;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
@@ -20,11 +22,14 @@ public class SimplePodbeanClient implements PodbeanClient {
 
 	private final RestTemplate restTemplate;
 
+	private final TokenProvider tokenProvider;
+
 	private final ParameterizedTypeReference<Map<String, Collection<Podcast>>> podcastsParameterizedTypeReference = new ParameterizedTypeReference<>() {
 	};
 
-	public SimplePodbeanClient(RestTemplate restTemplate) {
+	SimplePodbeanClient(TokenProvider tokenProvider, RestTemplate restTemplate) {
 		this.restTemplate = restTemplate;
+		this.tokenProvider = tokenProvider;
 	}
 
 	@Override
@@ -49,33 +54,25 @@ public class SimplePodbeanClient implements PodbeanClient {
 	@Override
 	public void uploadFile(MediaType mediaType, Resource resource, long filesize) {
 		/*
-		 * private URI submitForProduction(String uid, File archive) {
-		 *
-		 * var requestEntity = new HttpEntity<MultiValueMap<String, Object>>(body,
-		 * headers); var url = this.serverUrl + "/podcasts/" + uid; var response =
-		 * this.restTemplate.postForEntity(url, requestEntity, String.class); var location
-		 * = response.getHeaders().getLocation(); Assert.notNull(location,
-		 * "The location URI must be non-null"); var uri = URI.create(this.serverUrl +
-		 * location.getPath()); this.pollMap.put(uid, new AtomicBoolean(true)); return
-		 * this.pollProductionStatus(uid, uri); }
+		 * curl https://api.podbean.com/v1/files/uploadAuthorize -G -d
+		 * 'access_token={access_token}' -d 'filename=abc.mp3' -d 'filesize=1291021' -d
+		 * 'content_type=audio/mpeg'
 		 */
-		// curl https://api.podbean.com/v1/files/uploadAuthorize -G -d
-		// 'access_token={access_token}' -d 'filename=abc.mp3' -d 'filesize=1291021' -d
-		// 'content_type=audio/mpeg'
-
 		var results = new ParameterizedTypeReference<Map<String, String>>() {
 		};
 		var url = "https://api.podbean.com/v1/files/uploadAuthorize";
-		var filename = resource.getFilename();
-		var body = Map.of("content_type", mediaType.toString(), //
+		var filename = Objects.requireNonNull(resource.getFilename());
+		Assert.isTrue(resource.exists(), "the resource must point to a valid file");
+		var body = Map.of("access_token", this.tokenProvider.getToken().getToken(), //
+				"content_type", mediaType.toString(), //
 				"filename", filename, //
 				"filesize", filesize//
 		);
 		var headers = new LinkedMultiValueMap<String, String>();
 		var responseEntity = this.restTemplate.exchange(url, HttpMethod.GET,
-				new HttpEntity<>(body, headers), results);
-		Map<String, String> reply = responseEntity.getBody();
-		reply.forEach((k, v) -> log.info(k + '=' + v));
+				new HttpEntity<>(body), results);
+		Objects.requireNonNull(responseEntity.getBody())
+				.forEach((k, v) -> log.info(k + '=' + v));
 
 	}
 
