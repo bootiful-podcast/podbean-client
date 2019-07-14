@@ -35,7 +35,8 @@ class SimplePodbeanClientTest {
 				.andExpect(method(HttpMethod.GET)) //
 				.andRespond(withSuccess(
 						"{\"podcasts\":[{\"id\":\"o6DLxaF0purw\",\"title\":"
-								+ "\"The starbuxman's Podcast\",\"desc\":\"New podcast weblog\",\"logo\":\"https:\\/\\/pbcdn1.podbean.com\\/imglogo\\/image-logo\\/5518947\\/photo.jpg\","
+								+ "\"The starbuxman's Podcast\",\"desc\":\"New podcast weblog\","
+								+ "\"logo\":\"https:\\/\\/pbcdn1.podbean.com\\/imglogo\\/image-logo\\/5518947\\/photo.jpg\","
 								+ "\"website\":\"https:\\/\\/starbuxman.podbean.com\",\"category_name\":\"\",\"allow_episode_type\":"
 								+ "[\"public\"],\"object\":\"Podcast\"}]}",
 						MediaType.APPLICATION_JSON));
