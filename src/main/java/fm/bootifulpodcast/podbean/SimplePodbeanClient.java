@@ -1,16 +1,16 @@
 package fm.bootifulpodcast.podbean;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import fm.bootifulpodcast.podbean.token.TokenProvider;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.util.Assert;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -52,28 +52,22 @@ public class SimplePodbeanClient implements PodbeanClient {
 	 * once its granted, you're expected to upload files to the relevant AWS S3 bucket
 	 */
 	@Override
-	public void uploadFile(MediaType mediaType, Resource resource, long filesize) {
-		/*
-		 * curl https://api.podbean.com/v1/files/uploadAuthorize -G -d
-		 * 'access_token={access_token}' -d 'filename=abc.mp3' -d 'filesize=1291021' -d
-		 * 'content_type=audio/mpeg'
-		 */
-		var results = new ParameterizedTypeReference<Map<String, String>>() {
+	public UploadAuthorization getUploadAuthorization(MediaType mediaType,
+			Resource resource, long filesize) {
+		var results = new ParameterizedTypeReference<UploadAuthorization>() {
 		};
-		var url = "https://api.podbean.com/v1/files/uploadAuthorize";
 		var filename = Objects.requireNonNull(resource.getFilename());
+		// var url = "https://api.podbean.com/v1/files/uploadAuthorize?content_type=" +
+		// mediaType.toString() + "&filename=" + filename + "&filesize=" + filesize;
+		var uriString = UriComponentsBuilder
+				.fromHttpUrl("https://api.podbean.com/v1/files/uploadAuthorize")
+				.queryParam("content_type", mediaType.toString())
+				.queryParam("filename", filename).queryParam("filesize", filesize).build()
+				.toUriString();
 		Assert.isTrue(resource.exists(), "the resource must point to a valid file");
-		var body = Map.of("access_token", this.tokenProvider.getToken().getToken(), //
-				"content_type", mediaType.toString(), //
-				"filename", filename, //
-				"filesize", filesize//
-		);
-		var headers = new LinkedMultiValueMap<String, String>();
-		var responseEntity = this.restTemplate.exchange(url, HttpMethod.GET,
-				new HttpEntity<>(body), results);
-		Objects.requireNonNull(responseEntity.getBody())
-				.forEach((k, v) -> log.info(k + '=' + v));
-
+		var responseEntity = this.restTemplate.exchange(uriString, HttpMethod.GET, null,
+				results);
+		return responseEntity.getBody();
 	}
 
 }

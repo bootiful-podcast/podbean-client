@@ -51,24 +51,27 @@ class SimplePodbeanClientTest {
 		Assert.assertEquals(next.getLogo(), logo);
 		Assert.assertEquals(next.getDesc(), desc);
 		Assert.assertTrue(next.getAllowEpisodeType().contains(allowEpisodeType));
-
 		server.verify();
 	}
 
 	@Test
-	void uploadFile() {
+	void getUploadAuthorization() {
 		var tokenProvider = new TokenProvider(//
 				System.getenv("PODBEAN_CLIENT_ID"), //
 				System.getenv("PODBEAN_CLIENT_SECRET")//
 		);
 		var tokenInterceptor = new TokenInterceptor(tokenProvider);
-		var builder = new RestTemplateBuilder();
-		var restTemplate = builder.interceptors(tokenInterceptor).build();
+		var restTemplate = new RestTemplateBuilder().interceptors(tokenInterceptor)
+				.build();
 		var client = new SimplePodbeanClient(tokenProvider, restTemplate);
 		var mediaType = MediaType.parseMediaType("audio/mpeg");
 		var filePath = new File("/Users/joshlong/code/bootiful-podcast/assets/intro.mp3");
 		var resource = new FileSystemResource(filePath);
-		client.uploadFile(mediaType, resource, filePath.length());
+		UploadAuthorization authorization = client.getUploadAuthorization(mediaType,
+				resource, filePath.length());
+		Assert.assertEquals(authorization.getExpireAt(), 600);
+		Assert.assertTrue(authorization.getPresignedUrl().contains("s3"));
+		Assert.assertTrue(authorization.getFileKey().contains(filePath.getName()));
 	}
 
 }

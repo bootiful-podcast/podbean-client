@@ -61,8 +61,11 @@ public class TokenProvider {
 				var newToken = new Token(accessToken,
 						System.currentTimeMillis() + expiry);
 				this.token.set(newToken);
-				log.info("the new token: " + this.token.get());
+				log.info("returning new token: " + this.token.get());
 			}
+		}
+		else {
+			log.info("returning cached token " + this.token.get());
 		}
 		var token = this.token.get();
 		Assert.notNull(token, "the token must be non-null");
