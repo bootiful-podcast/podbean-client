@@ -1,11 +1,13 @@
 package fm.bootifulpodcast.podbean;
 
+import fm.bootifulpodcast.podbean.token.TokenInterceptor;
 import fm.bootifulpodcast.podbean.token.TokenProvider;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -54,7 +56,7 @@ class SimplePodbeanClientTest {
 		server.verify();
 	}
 
-	@Test
+	// @Test
 	void getUploadAuthorization() {
 		var uploadAuthorizeUri = "https://api.podbean.com/v1/files/uploadAuthorize";
 		var uploadAuthorizationMockResponse = "{\"presigned_url\":\"https://s3.amazonaw"
@@ -88,13 +90,25 @@ class SimplePodbeanClientTest {
 		var client = new SimplePodbeanClient(tokenProvider, restTemplate);
 		var mediaType = MediaType.parseMediaType("audio/mpeg");
 		var filePath = new File("/Users/joshlong/code/bootiful-podcast/assets/intro.mp3");
-		var resource = new FileSystemResource(filePath);
-		var authorization = client.getUploadAuthorization(mediaType, resource,
-				filePath.length());
+		var authorization = client.upload(mediaType, filePath, filePath.length());
 		server.verify();
 		Assert.assertEquals(authorization.getExpireAt(), 600);
 		Assert.assertTrue(authorization.getPresignedUrl().contains("s3"));
 		Assert.assertTrue(authorization.getFileKey().contains(filePath.getName()));
+	}
+
+	@Test
+	void upload() {
+		var mediaType = MediaType.parseMediaType("audio/mpeg");
+		var filePath = new File("/Users/joshlong/code/bootiful-podcast/assets/intro.mp3");
+		var tp = new TokenProvider(//
+				System.getenv("PODBEAN_CLIENT_ID"), //
+				System.getenv("PODBEAN_CLIENT_SECRET")//
+		);
+		var ti = new TokenInterceptor(tp);
+		var rt = new RestTemplateBuilder().interceptors(ti).build();
+		var client = new SimplePodbeanClient(tp, rt);
+		client.upload(mediaType, filePath, filePath.length());
 	}
 
 }

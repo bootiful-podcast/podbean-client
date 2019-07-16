@@ -3,6 +3,7 @@ package fm.bootifulpodcast.podbean;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 
+import java.io.File;
 import java.util.Collection;
 
 /**
@@ -16,7 +17,6 @@ public interface PodbeanClient {
 
 	Collection<Podcast> getAllPodcasts();
 
-	UploadAuthorization getUploadAuthorization(MediaType mediaType, Resource resource,
-			long filesize);
+	UploadAuthorization upload(MediaType mediaType, File resource, long filesize);
 
 }
