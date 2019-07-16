@@ -81,7 +81,8 @@ class SimplePodbeanClientTest {
 		var restTemplate = new RestTemplate();
 		var tokenProvider = Mockito.mock(TokenProvider.class);
 		var server = MockRestServiceServer.bindTo(restTemplate).build();
-		server.expect(once(), requestTo(mBaseMatcher)).andExpect(method(HttpMethod.GET))
+		server.expect(once(), requestTo(mBaseMatcher))//
+				.andExpect(method(HttpMethod.GET))//
 				.andRespond(withSuccess(uploadAuthorizationMockResponse,
 						MediaType.APPLICATION_JSON));
 		var client = new SimplePodbeanClient(tokenProvider, restTemplate);
