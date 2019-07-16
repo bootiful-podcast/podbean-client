@@ -89,8 +89,8 @@ class SimplePodbeanClientTest {
 		var mediaType = MediaType.parseMediaType("audio/mpeg");
 		var filePath = new File("/Users/joshlong/code/bootiful-podcast/assets/intro.mp3");
 		var resource = new FileSystemResource(filePath);
-		UploadAuthorization authorization = client.getUploadAuthorization(mediaType,
-				resource, filePath.length());
+		var authorization = client.getUploadAuthorization(mediaType, resource,
+				filePath.length());
 		server.verify();
 		Assert.assertEquals(authorization.getExpireAt(), 600);
 		Assert.assertTrue(authorization.getPresignedUrl().contains("s3"));
