@@ -1,11 +1,11 @@
 package fm.bootifulpodcast.podbean;
 
-import fm.bootifulpodcast.podbean.token.TokenInterceptor;
 import fm.bootifulpodcast.podbean.token.TokenProvider;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -56,19 +56,41 @@ class SimplePodbeanClientTest {
 
 	@Test
 	void getUploadAuthorization() {
-		var tokenProvider = new TokenProvider(//
-				System.getenv("PODBEAN_CLIENT_ID"), //
-				System.getenv("PODBEAN_CLIENT_SECRET")//
-		);
-		var tokenInterceptor = new TokenInterceptor(tokenProvider);
-		var restTemplate = new RestTemplateBuilder().interceptors(tokenInterceptor)
-				.build();
+		var uploadAuthorizeUri = "https://api.podbean.com/v1/files/uploadAuthorize";
+		var uploadAuthorizationMockResponse = "{\"presigned_url\":\"https://s3.amazonaw"
+				+ "s.com/a1.podbean.com/tmp2/5518947/intro.mp3?X-Amz-Content-Sha256=UNSIGNED-PAY"
+				+ "LOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAYBAB55VCNHSFLRBE%2F2"
+				+ "0190716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20190716T021338Z&X-Amz-Signe"
+				+ "dHeaders=host&X-Amz-Expires=600&X-Amz-Signature=f012ea05477254ecb90d36e8c53c9b7e5"
+				+ "9694b16d976ceef3e28381c8aaa524e\",\"expire_at\":600,\"file_key\":\"tmp2/5518947/in"
+				+ "tro.mp3\"}";
+		var mBaseMatcher = new BaseMatcher<String>() {
+
+			@Override
+			public boolean matches(Object item) {
+				return item instanceof String
+						&& ((String) item).contains(uploadAuthorizeUri);
+			}
+
+			@Override
+			public void describeTo(Description description) {
+				description
+						.appendText("the URL should be to the uploadAuthorize endpoint");
+			}
+		};
+		var restTemplate = new RestTemplate();
+		var tokenProvider = Mockito.mock(TokenProvider.class);
+		var server = MockRestServiceServer.bindTo(restTemplate).build();
+		server.expect(once(), requestTo(mBaseMatcher)).andExpect(method(HttpMethod.GET))
+				.andRespond(withSuccess(uploadAuthorizationMockResponse,
+						MediaType.APPLICATION_JSON));
 		var client = new SimplePodbeanClient(tokenProvider, restTemplate);
 		var mediaType = MediaType.parseMediaType("audio/mpeg");
 		var filePath = new File("/Users/joshlong/code/bootiful-podcast/assets/intro.mp3");
 		var resource = new FileSystemResource(filePath);
 		UploadAuthorization authorization = client.getUploadAuthorization(mediaType,
 				resource, filePath.length());
+		server.verify();
 		Assert.assertEquals(authorization.getExpireAt(), 600);
 		Assert.assertTrue(authorization.getPresignedUrl().contains("s3"));
 		Assert.assertTrue(authorization.getFileKey().contains(filePath.getName()));

@@ -57,8 +57,6 @@ public class SimplePodbeanClient implements PodbeanClient {
 		var results = new ParameterizedTypeReference<UploadAuthorization>() {
 		};
 		var filename = Objects.requireNonNull(resource.getFilename());
-		// var url = "https://api.podbean.com/v1/files/uploadAuthorize?content_type=" +
-		// mediaType.toString() + "&filename=" + filename + "&filesize=" + filesize;
 		var uriString = UriComponentsBuilder
 				.fromHttpUrl("https://api.podbean.com/v1/files/uploadAuthorize")
 				.queryParam("content_type", mediaType.toString())
@@ -67,6 +65,7 @@ public class SimplePodbeanClient implements PodbeanClient {
 		Assert.isTrue(resource.exists(), "the resource must point to a valid file");
 		var responseEntity = this.restTemplate.exchange(uriString, HttpMethod.GET, null,
 				results);
+		log.info(responseEntity.getBody());
 		return responseEntity.getBody();
 	}
 
