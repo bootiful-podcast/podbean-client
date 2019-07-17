@@ -54,8 +54,9 @@ public class SimplePodbeanClient implements PodbeanClient {
 	 * <p>
 	 * This is a two-step process:
 	 * <p>
-	 * 1. permission is first saught from Podbean to upload files to an AWS S3 bucket 2.
-	 * once its granted, you're expected to upload files to the relevant AWS S3 bucket
+	 * 1. permission is first saught from Podbean to doUploadToS3 files to an AWS S3
+	 * bucket 2. once its granted, you're expected to doUploadToS3 files to the relevant
+	 * AWS S3 bucket
 	 */
 	@Override
 	public UploadAuthorization upload(MediaType mediaType, File resource, long filesize) {
@@ -74,13 +75,13 @@ public class SimplePodbeanClient implements PodbeanClient {
 		var uploadAuthorization = responseEntity.getBody();
 		log.info(uploadAuthorization);
 		var presignedUrl = Objects.requireNonNull(uploadAuthorization).getPresignedUrl();
-		var result = upload(presignedUrl, resource);
+		var result = this.doUploadToS3(presignedUrl, resource);
 		Assert.isTrue(result, "the result should be " + HttpStatus.OK.value());
 		return uploadAuthorization;
 	}
 
 	@SneakyThrows
-	private boolean upload(String presignedUrl, File file) {
+	private boolean doUploadToS3(String presignedUrl, File file) {
 		var url = URI.create(presignedUrl);
 		var request = RequestEntity.put(url)
 				.contentType(MediaType.parseMediaType("audio/mpeg"))
