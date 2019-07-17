@@ -2,6 +2,7 @@ package fm.bootifulpodcast.podbean;
 
 import fm.bootifulpodcast.podbean.token.TokenInterceptor;
 import fm.bootifulpodcast.podbean.token.TokenProvider;
+import lombok.extern.log4j.Log4j2;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Assert;
@@ -20,6 +21,7 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
+@Log4j2
 class SimplePodbeanClientTest {
 
 	@Test
@@ -104,7 +106,9 @@ class SimplePodbeanClientTest {
 		var ti = new TokenInterceptor(tp);
 		var rt = new RestTemplateBuilder().interceptors(ti).build();
 		var client = new SimplePodbeanClient(rt);
-		client.upload(mediaType, filePath, filePath.length());
+		UploadAuthorization upload = client.upload(mediaType, filePath,
+				filePath.length());
+		log.info(upload);
 	}
 
 }
