@@ -6,9 +6,7 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -27,8 +25,7 @@ class SimplePodbeanClientTest {
 	@Test
 	void getAllPodcasts() {
 		var restTemplate = new RestTemplate();
-		var tp = Mockito.mock(TokenProvider.class);
-		var client = new SimplePodbeanClient(tp, restTemplate);
+		var client = new SimplePodbeanClient(restTemplate);
 		var logo = "https://pbcdn1.podbean.com/imglogo/image-logo/5518947/photo.jpg";
 		var title = "The starbuxman's Podcast";
 		var website = "https://starbuxman.podbean.com";
@@ -81,13 +78,12 @@ class SimplePodbeanClientTest {
 			}
 		};
 		var restTemplate = new RestTemplate();
-		var tokenProvider = Mockito.mock(TokenProvider.class);
 		var server = MockRestServiceServer.bindTo(restTemplate).build();
 		server.expect(once(), requestTo(mBaseMatcher))//
 				.andExpect(method(HttpMethod.GET))//
 				.andRespond(withSuccess(uploadAuthorizationMockResponse,
 						MediaType.APPLICATION_JSON));
-		var client = new SimplePodbeanClient(tokenProvider, restTemplate);
+		var client = new SimplePodbeanClient(restTemplate);
 		var mediaType = MediaType.parseMediaType("audio/mpeg");
 		var filePath = new File("/Users/joshlong/code/bootiful-podcast/assets/intro.mp3");
 		var authorization = client.upload(mediaType, filePath, filePath.length());
@@ -107,7 +103,7 @@ class SimplePodbeanClientTest {
 		);
 		var ti = new TokenInterceptor(tp);
 		var rt = new RestTemplateBuilder().interceptors(ti).build();
-		var client = new SimplePodbeanClient(tp, rt);
+		var client = new SimplePodbeanClient(rt);
 		client.upload(mediaType, filePath, filePath.length());
 	}
 

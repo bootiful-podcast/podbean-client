@@ -37,8 +37,8 @@ public class PodbeanAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	PodbeanClient podbeanClient(TokenProvider provider, RestTemplate template) {
-		return new SimplePodbeanClient(provider, template);
+	PodbeanClient podbeanClient(RestTemplate template) {
+		return new SimplePodbeanClient(template);
 	}
 
 }

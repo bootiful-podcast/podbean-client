@@ -1,19 +1,17 @@
 package fm.bootifulpodcast.podbean;
 
-import fm.bootifulpodcast.podbean.token.TokenProvider;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+import okhttp3.logging.HttpLoggingInterceptor;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.core.io.Resource;
-import org.springframework.http.*;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
 import org.springframework.util.Assert;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -32,14 +30,11 @@ public class SimplePodbeanClient implements PodbeanClient {
 	private final RestTemplate nonAuthenticatedRestTemplate = new RestTemplateBuilder()
 			.build();
 
-	private final TokenProvider tokenProvider;
-
 	private final ParameterizedTypeReference<Map<String, Collection<Podcast>>> podcastsParameterizedTypeReference = new ParameterizedTypeReference<>() {
 	};
 
-	SimplePodbeanClient(TokenProvider tokenProvider, RestTemplate restTemplate) {
+	SimplePodbeanClient(RestTemplate restTemplate) {
 		this.restTemplate = restTemplate;
-		this.tokenProvider = tokenProvider;
 	}
 
 	@Override
@@ -69,54 +64,30 @@ public class SimplePodbeanClient implements PodbeanClient {
 		var filename = Objects.requireNonNull(resource.getName());
 		var uriString = UriComponentsBuilder
 				.fromHttpUrl("https://api.podbean.com/v1/files/uploadAuthorize")
-				.queryParam("content_type", mediaType.toString())
-				.queryParam("filename", filename).queryParam("filesize", filesize).build()
-				.toUriString();
+				.queryParam("content_type", mediaType.toString())//
+				.queryParam("filename", filename)//
+				.queryParam("filesize", filesize)//
+				.build().toUriString();
 		Assert.isTrue(resource.exists(), "the resource must point to a valid file");
 		var responseEntity = this.restTemplate.exchange(uriString, HttpMethod.GET, null,
 				results);
 		var uploadAuthorization = responseEntity.getBody();
 		log.info(uploadAuthorization);
 		var presignedUrl = Objects.requireNonNull(uploadAuthorization).getPresignedUrl();
-
 		var result = upload(presignedUrl, resource);
 		Assert.isTrue(result, "the result should be " + HttpStatus.OK.value());
 		return uploadAuthorization;
 	}
 
-	private final OkHttpClient client = new OkHttpClient.Builder().build();
-
 	@SneakyThrows
 	private boolean upload(String presignedUrl, File file) {
-		// todo figure out how to make this work with the RestTemplate and not just OkHttp
-		var fileBody = RequestBody.create(null, file);
-		var request = new Request.Builder().url(presignedUrl).method("PUT", fileBody)
-				.addHeader("Content-Type", "audio/mpeg") // use your Content-Type
-				.build();
-
-		Response response = client.newCall(request).execute();
-		return response.code() == 200;
-
-	}
-
-	@Deprecated
-	private boolean uploadWithRestTemplate(String url, Resource resource) {
-		log.info("the presigned_url is " + url);
-		MultiValueMap<String, String> params = UriComponentsBuilder.fromUriString(url)
-				.build().getQueryParams();
-		URI uri = URI.create(url);
-		log.info(uri.toASCIIString());
-		log.info(params.toSingleValueMap());
-
-		var headers = new HttpHeaders();
-		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-		var body = new LinkedMultiValueMap<String, Object>();
-		body.add("file", resource);
-		var requestEntity = new HttpEntity<MultiValueMap<String, Object>>(body, headers);
-		var response = this.nonAuthenticatedRestTemplate.exchange(url, HttpMethod.PUT,
-				requestEntity, String.class);
-
-		return response.getStatusCode().is2xxSuccessful();
+		var url = URI.create(presignedUrl);
+		var request = RequestEntity.put(url)
+				.contentType(MediaType.parseMediaType("audio/mpeg"))
+				.body(new FileSystemResource(file));
+		return this.nonAuthenticatedRestTemplate
+				.exchange(url, HttpMethod.PUT, request, String.class).getStatusCode()
+				.is2xxSuccessful();
 	}
 
 }
