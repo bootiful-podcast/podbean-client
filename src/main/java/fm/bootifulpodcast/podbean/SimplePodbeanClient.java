@@ -18,7 +18,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.File;
 import java.net.URI;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Objects;
 
 @Log4j2
 public class SimplePodbeanClient implements PodbeanClient {
@@ -84,25 +87,21 @@ public class SimplePodbeanClient implements PodbeanClient {
 
 		var ptr = new ParameterizedTypeReference<Map<String, Object>>() {
 		};
-		UriComponentsBuilder builder = UriComponentsBuilder
+		var uriComponentsBuilder = UriComponentsBuilder
 				.fromHttpUrl("https://api.podbean.com/v1/episodes");
-
 		if (offset > 0)
-			builder.queryParam("offset", offset);
+			uriComponentsBuilder.queryParam("offset", offset);
 		if (limit > 0)
-			builder.queryParam("limit", limit);
-
-		var url = builder.build().toUriString();
+			uriComponentsBuilder.queryParam("limit", limit);
+		var url = uriComponentsBuilder.build().toUriString();
 		var responseEntity = this.authenticatedRestTemplate.exchange(url, HttpMethod.GET,
 				null, String.class);
-
 		var json = responseEntity.getBody();
 		var jsonNode = this.objectMapper.readTree(json);
 		JsonNode episodes = jsonNode.get("episodes");
 		return objectMapper.readValue(episodes.toString(),
 				new TypeReference<Collection<Episode>>() {
 				});
-
 	}
 
 	@Override
