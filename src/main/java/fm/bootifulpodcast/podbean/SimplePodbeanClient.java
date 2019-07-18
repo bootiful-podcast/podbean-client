@@ -84,9 +84,6 @@ public class SimplePodbeanClient implements PodbeanClient {
 	@Override
 	@SneakyThrows
 	public Collection<Episode> getEpisodes(int offset, int limit) {
-
-		var ptr = new ParameterizedTypeReference<Map<String, Object>>() {
-		};
 		var uriComponentsBuilder = UriComponentsBuilder
 				.fromHttpUrl("https://api.podbean.com/v1/episodes");
 		if (offset > 0)
