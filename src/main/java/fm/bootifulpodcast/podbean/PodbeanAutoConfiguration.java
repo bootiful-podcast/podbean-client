@@ -1,5 +1,6 @@
 package fm.bootifulpodcast.podbean;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fm.bootifulpodcast.podbean.token.TokenInterceptor;
 import fm.bootifulpodcast.podbean.token.TokenProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -45,8 +46,9 @@ public class PodbeanAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	PodbeanClient podbeanClient(@Qualifier(AUTHENTICATED) RestTemplate template) {
-		return new SimplePodbeanClient(template);
+	PodbeanClient podbeanClient(@Qualifier(AUTHENTICATED) RestTemplate template,
+			ObjectMapper om) {
+		return new SimplePodbeanClient(template, om);
 	}
 
 }
