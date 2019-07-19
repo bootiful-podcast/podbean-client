@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.FormHttpMessageConverter;
 
 import java.io.File;
 import java.util.Collection;
@@ -26,24 +27,34 @@ class SimplePodbeanClientTest {
 				System.getenv("PODBEAN_CLIENT_SECRET")//
 		);
 		var ti = new TokenInterceptor(tp);
-		var rt = new RestTemplateBuilder().interceptors(ti).build();
-		this.client = new SimplePodbeanClient(rt, new ObjectMapper());
+		var rt = new RestTemplateBuilder().interceptors(ti).defaultMessageConverters()
+				.additionalMessageConverters(new FormHttpMessageConverter()).build();
+		this.client = new SimplePodbeanClient(rt, tp, new ObjectMapper());
 	}
 
 	@Test
 	void getEpisodes() throws Exception {
 		Assert.assertNotNull(this.client);
 		Collection<Episode> episodes = this.client.getEpisodes();
+		Assert.assertTrue("there should be more than one episode", episodes.size() > 0);
+		Episode next = episodes.iterator().next();
+		Assert.assertNotNull(next.getId());
+		Assert.assertNotNull(next.getPodcastId());
+		Assert.assertNotNull(next.getContent());
+		Assert.assertNotNull(next.getMediaUrl());
 		episodes.forEach(log::info);
 	}
 
 	@Test
-	void createEpisode() throws Exception {
+	void createEpisode() {
 		var mediaType = MediaType.parseMediaType("audio/mpeg");
 		var filePath = new File("/Users/joshlong/code/bootiful-podcast/assets/intro.mp3");
-		Episode episode = client.createEpisode("this is the title",
-				"<p> in this episoe we talk to <b>Sarah</b> about <EM> stuff</EM>",
-				"publish", "public", "intro.mp3", null);
+		var upload = client.upload(mediaType, filePath, filePath.length());
+		log.info("file key: " + upload.toString());
+		long currentTimeMillis = System.currentTimeMillis();
+		var episode = client.publishEpisode("t" + currentTimeMillis,
+				"c" + currentTimeMillis, EpisodeStatus.DRAFT, EpisodeType.PUBLIC,
+				upload.getFileKey(), null);
 		Assert.assertNotNull(episode.getId());
 	}
 
@@ -54,6 +65,11 @@ class SimplePodbeanClientTest {
 		UploadAuthorization upload = client.upload(mediaType, filePath,
 				filePath.length());
 		log.info(upload);
+	}
+
+	@Test
+	void getPodcasts() throws Exception {
+		this.client.getAllPodcasts().forEach(log::info);
 	}
 
 }

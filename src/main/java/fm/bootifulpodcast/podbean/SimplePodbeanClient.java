@@ -3,6 +3,7 @@ package fm.bootifulpodcast.podbean;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fm.bootifulpodcast.podbean.token.TokenProvider;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -13,6 +14,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.util.Assert;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.StringUtils;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -30,15 +34,18 @@ public class SimplePodbeanClient implements PodbeanClient {
 
 	private final RestTemplate restTemplate = new RestTemplateBuilder().build();
 
+	private final TokenProvider tokenProvider;
+
 	private final ObjectMapper objectMapper;
 
 	private final ParameterizedTypeReference<Map<String, Collection<Podcast>>> getAllPodcastsTypeReference = new ParameterizedTypeReference<>() {
 	};
 
-	SimplePodbeanClient(RestTemplate authenticatedRestTemplate,
+	SimplePodbeanClient(RestTemplate authenticatedRestTemplate, TokenProvider provider,
 			ObjectMapper objectMapper) {
 		this.authenticatedRestTemplate = authenticatedRestTemplate;
 		this.objectMapper = objectMapper;
+		this.tokenProvider = provider;
 	}
 
 	@Override
@@ -70,17 +77,96 @@ public class SimplePodbeanClient implements PodbeanClient {
 		var uploadAuthorization = responseEntity.getBody();
 		log.info(uploadAuthorization);
 		var presignedUrl = Objects.requireNonNull(uploadAuthorization).getPresignedUrl();
-		var result = this.doUploadToS3(presignedUrl, resource);
+		var result = this.doUploadToS3(presignedUrl, mediaType, resource);
 		Assert.isTrue(result, "the result should be " + HttpStatus.OK.value());
 		return uploadAuthorization;
 	}
 
+	/*
+	 * @Override public Episode publishEpisode(String title, String content, EpisodeStatus
+	 * status, EpisodeType type, String mediaKey, String logoKey) { var uri =
+	 * URI.create(" https://api.podbean.com/v1/episodes ".trim()); var bodyMap = new
+	 * HashMap<String, String>(); if (logoKey != null) { bodyMap.put("logo_key", logoKey);
+	 * } bodyMap.putAll(Map.of(// "title", title,// "content", content,// "status",
+	 * status.name().toLowerCase(),// "type", type.name().toLowerCase()// // "media_key",
+	 * mediaKey )); try { MultiValueMap<String, String> map = new
+	 * LinkedMultiValueMap<String, String>(); for (var k : bodyMap.keySet()) { map.add(k,
+	 * bodyMap.get(k)); } HttpEntity<MultiValueMap<String, String>> request = new
+	 * HttpEntity<>(map); ResponseEntity<String> responseEntity =
+	 * this.authenticatedRestTemplate .exchange(uri, HttpMethod.POST, request,
+	 * String.class); log.info("json: " + responseEntity.getBody()); } catch (Exception e)
+	 * { log.error("", e); } return null; }
+	 */
+
+	/**
+	 * TODO we need to figure out how to encode th
+	 * @param title
+	 * @param content
+	 * @param status
+	 * @param type
+	 * @param mediaKey
+	 * @param logoKey
+	 * @return
+	 */
 	@Override
-	public Episode createEpisode(String title, String content, String status, String type,
-			String mediaKey, String logoKey) {
+	public Episode publishEpisode(String title, String content, EpisodeStatus status,
+			EpisodeType type, String mediaKey, String logoKey) {
+		var uri = URI.create(" https://api.podbean.com/v1/episodes ".trim());
+		var bodyMap = new LinkedMultiValueMap<String, String>();
+		if (StringUtils.hasText(logoKey)) {
+			bodyMap.add("logo_key", logoKey);
+		}
+		if (StringUtils.hasText(mediaKey)) {
+			bodyMap.add("media_key", mediaKey);
+		}
+		Map.of(//
+				// "access_token", this.tokenProvider.getToken().getToken(),
+				"title", title, //
+				"content", content, //
+				"status", status.name().toLowerCase(), //
+				"type", type.name().toLowerCase() //
+		).forEach(bodyMap::add);
+		try {
+			var result = authenticatedRestTemplate.postForObject(uri, bodyMap,
+					String.class);
+			log.info(result);
+		}
+		catch (Exception e) {
+			if (e instanceof HttpClientErrorException) {
+
+				var httpEx = (HttpClientErrorException) e;
+				var msg = ((HttpClientErrorException.BadRequest) e)
+						.getResponseBodyAsString();
+				log.error(msg);
+			}
+			log.error("", e);
+		}
 		return null;
 	}
 
+	/*
+	 * 2019-07-18 01:03:22.500 INFO 94491 --- [nio-8080-exec-1]
+	 * o.s.web.servlet.DispatcherServlet : Initializing Servlet 'dispatcherServlet'
+	 * 2019-07-18 01:03:22.509 INFO 94491 --- [nio-8080-exec-1]
+	 * o.s.web.servlet.DispatcherServlet : Completed initialization in 9 ms 2019-07-18
+	 * 01:03:22.538 INFO 94491 --- [nio-8080-exec-1] com.example.web.WebApplication :
+	 * ----------------------- 2019-07-18 01:03:22.539 INFO 94491 --- [nio-8080-exec-1]
+	 * com.example.web.WebApplication :
+	 * Content-Type=[application/x-www-form-urlencoded;charset=UTF-8] 2019-07-18
+	 * 01:03:22.539 INFO 94491 --- [nio-8080-exec-1] com.example.web.WebApplication :
+	 * accept=... 2019-07-18 01:03:22.540 INFO 94491 --- [nio-8080-exec-1]
+	 * com.example.web.WebApplication : content-length=[162] 2019-07-18 01:03:22.540 INFO
+	 * 94491 --- [nio-8080-exec-1] com.example.web.WebApplication : host=[localhost:8080]
+	 * 2019-07-18 01:03:22.540 INFO 94491 --- [nio-8080-exec-1]
+	 * com.example.web.WebApplication : user-agent=[curl/7.54.0] 2019-07-18 01:03:22.540
+	 * INFO 94491 --- [nio-8080-exec-1] com.example.web.WebApplication :
+	 * ----------------------- 2019-07-18 01:03:22.540 INFO 94491 --- [nio-8080-exec-1]
+	 * com.example.web.WebApplication :
+	 * access_token=%7Baccess_token%7D&title=Good+day&content=Time+you+%3Cb%3Eenjoy%3C%2Fb
+	 * %3E+wasting%2C+was+not+wasted.&status=publish&type=public&media_key=audio.mp3&
+	 * logo_key=logo.jpg
+	 *
+	 */
 	@Override
 	@SneakyThrows
 	public Collection<Episode> getEpisodes(int offset, int limit) {
@@ -107,10 +193,9 @@ public class SimplePodbeanClient implements PodbeanClient {
 	}
 
 	@SneakyThrows
-	private boolean doUploadToS3(String presignedUrl, File file) {
+	private boolean doUploadToS3(String presignedUrl, MediaType mt, File file) {
 		var url = URI.create(presignedUrl);
-		var request = RequestEntity.put(url)
-				.contentType(MediaType.parseMediaType("audio/mpeg"))
+		var request = RequestEntity.put(url).contentType(mt)
 				.body(new FileSystemResource(file));
 		return this.restTemplate.exchange(url, HttpMethod.PUT, request, String.class)
 				.getStatusCode().is2xxSuccessful();

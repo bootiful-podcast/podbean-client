@@ -1,20 +1,14 @@
 package fm.bootifulpodcast.podbean;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import org.springframework.util.Assert;
 
 import java.net.URI;
 import java.util.Date;
-import java.util.Set;
 
 @Data
 public class Episode {
-
-	@JsonIgnore
-	private final Set<String> validTypes = Set.of("publish", "draft");
 
 	private final String podcastId, id, title, content, logo, status, type;
 
@@ -46,16 +40,34 @@ public class Episode {
 		this.content = content;
 		this.publishTime = publishTime;
 		this.logo = logo;
-		this.status = status;
-		this.type = type;
 		this.playerUrl = playerUrl;
 		this.mediaUrl = mediaUrl;
 		this.permalinkUrl = permalinkUrl;
 		this.duration = duration;
+		this.type = this.resolveTypeGiven(type);
+		this.status = this.resolveStatusGiven(status);
+	}
 
-		Assert.notNull(this.status, "the status must not be null");
-		Assert.isTrue(this.status.contains(this.status.toLowerCase()), "");
+	private String resolveTypeGiven(String type) {
+		String resolvedType;
+		try {
+			resolvedType = EpisodeType.valueOf(type.toUpperCase()).name();
+		}
+		catch (IllegalArgumentException | NullPointerException e) {
+			resolvedType = EpisodeType.PUBLIC.name();
+		}
+		return resolvedType;
+	}
 
+	private String resolveStatusGiven(String status) {
+		String resolvedStatus;
+		try {
+			resolvedStatus = EpisodeStatus.valueOf(status.toUpperCase()).name();
+		}
+		catch (IllegalArgumentException | NullPointerException e) {
+			resolvedStatus = EpisodeStatus.DRAFT.name();
+		}
+		return resolvedStatus;
 	}
 
 }

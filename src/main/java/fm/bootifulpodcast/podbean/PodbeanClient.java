@@ -18,8 +18,8 @@ public interface PodbeanClient {
 
 	UploadAuthorization upload(MediaType mediaType, File resource, long filesize);
 
-	Episode createEpisode(String title, String content, String status, String type,
-			String mediaKey, String logoKey);
+	Episode publishEpisode(String title, String content, EpisodeStatus status,
+			EpisodeType type, String mediaKey, String logoKey);
 
 	Collection<Episode> getEpisodes(int offset, int limit);
 
