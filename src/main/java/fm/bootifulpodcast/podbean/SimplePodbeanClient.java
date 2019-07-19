@@ -132,9 +132,7 @@ public class SimplePodbeanClient implements PodbeanClient {
 			log.info(result);
 		}
 		catch (Exception e) {
-			if (e instanceof HttpClientErrorException) {
-
-				var httpEx = (HttpClientErrorException) e;
+			if (e instanceof HttpClientErrorException.BadRequest) {
 				var msg = ((HttpClientErrorException.BadRequest) e)
 						.getResponseBodyAsString();
 				log.error(msg);
@@ -144,29 +142,6 @@ public class SimplePodbeanClient implements PodbeanClient {
 		return null;
 	}
 
-	/*
-	 * 2019-07-18 01:03:22.500 INFO 94491 --- [nio-8080-exec-1]
-	 * o.s.web.servlet.DispatcherServlet : Initializing Servlet 'dispatcherServlet'
-	 * 2019-07-18 01:03:22.509 INFO 94491 --- [nio-8080-exec-1]
-	 * o.s.web.servlet.DispatcherServlet : Completed initialization in 9 ms 2019-07-18
-	 * 01:03:22.538 INFO 94491 --- [nio-8080-exec-1] com.example.web.WebApplication :
-	 * ----------------------- 2019-07-18 01:03:22.539 INFO 94491 --- [nio-8080-exec-1]
-	 * com.example.web.WebApplication :
-	 * Content-Type=[application/x-www-form-urlencoded;charset=UTF-8] 2019-07-18
-	 * 01:03:22.539 INFO 94491 --- [nio-8080-exec-1] com.example.web.WebApplication :
-	 * accept=... 2019-07-18 01:03:22.540 INFO 94491 --- [nio-8080-exec-1]
-	 * com.example.web.WebApplication : content-length=[162] 2019-07-18 01:03:22.540 INFO
-	 * 94491 --- [nio-8080-exec-1] com.example.web.WebApplication : host=[localhost:8080]
-	 * 2019-07-18 01:03:22.540 INFO 94491 --- [nio-8080-exec-1]
-	 * com.example.web.WebApplication : user-agent=[curl/7.54.0] 2019-07-18 01:03:22.540
-	 * INFO 94491 --- [nio-8080-exec-1] com.example.web.WebApplication :
-	 * ----------------------- 2019-07-18 01:03:22.540 INFO 94491 --- [nio-8080-exec-1]
-	 * com.example.web.WebApplication :
-	 * access_token=%7Baccess_token%7D&title=Good+day&content=Time+you+%3Cb%3Eenjoy%3C%2Fb
-	 * %3E+wasting%2C+was+not+wasted.&status=publish&type=public&media_key=audio.mp3&
-	 * logo_key=logo.jpg
-	 *
-	 */
 	@Override
 	@SneakyThrows
 	public Collection<Episode> getEpisodes(int offset, int limit) {
