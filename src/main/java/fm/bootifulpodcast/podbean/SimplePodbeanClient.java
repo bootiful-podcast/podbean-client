@@ -100,17 +100,11 @@ public class SimplePodbeanClient implements PodbeanClient {
 				"type", type.name().toLowerCase() //
 		).forEach(bodyMap::add);
 		try {
-			var ptr = new ParameterizedTypeReference<Map<String, Episode>>() {
-			};
-			// {"episode":{"id":"JQ7ZJB885BC","podcast_id":"o6DLxaF0purw","title":"t1563612148229","content":"c1563612148229","logo":null,"media_url":"https:\/\/starbuxman.podbean.com\/mf\/play\/v4nzz3\/intro.mp3","player_url":"https:\/\/www.podbean.com\/media\/player\/jq7zj-b885bc","permalink_url":"https:\/\/starbuxman.podbean.com\/e\/t1563612148229\/","publish_time":1563612148,"status":"publish","type":"public","duration":0,"object":"Episode"}}
 			var result = authenticatedRestTemplate.postForObject(uri, bodyMap,
 					String.class);
-
 			Map<String, Episode> readValue = this.objectMapper.readValue(result,
 					new TypeReference<Map<String, Episode>>() {
 					});
-			if (log.isInfoEnabled())
-				log.info(readValue);
 			return readValue.get("episode");
 		}
 		catch (Exception e) {
