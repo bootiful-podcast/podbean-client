@@ -109,7 +109,8 @@ public class SimplePodbeanClient implements PodbeanClient {
 			Map<String, Episode> readValue = this.objectMapper.readValue(result,
 					new TypeReference<Map<String, Episode>>() {
 					});
-			log.info(readValue);
+			if (log.isInfoEnabled())
+				log.info(readValue);
 			return readValue.get("episode");
 		}
 		catch (Exception e) {
