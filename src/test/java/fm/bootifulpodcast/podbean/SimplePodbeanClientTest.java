@@ -47,13 +47,14 @@ class SimplePodbeanClientTest {
 
 	@Test
 	void createEpisode() {
+		// {"episode":{"id":"IUUETB885A2","podcast_id":"o6DLxaF0purw","title":"t1563611568056","content":"c1563611568056","logo":null,"media_url":"https:\/\/starbuxman.podbean.com\/mf\/play\/jj6eg5\/intro.mp3","player_url":"https:\/\/www.podbean.com\/media\/player\/iuuet-b885a2","permalink_url":null,"publish_time":1563611568,"status":"draft","type":"public","duration":0,"object":"Episode"}}
 		var mediaType = MediaType.parseMediaType("audio/mpeg");
 		var filePath = new File("/Users/joshlong/code/bootiful-podcast/assets/intro.mp3");
 		var upload = client.upload(mediaType, filePath, filePath.length());
 		log.info("file key: " + upload.toString());
 		long currentTimeMillis = System.currentTimeMillis();
 		var episode = client.publishEpisode("t" + currentTimeMillis,
-				"c" + currentTimeMillis, EpisodeStatus.DRAFT, EpisodeType.PUBLIC,
+				"c" + currentTimeMillis, EpisodeStatus.PUBLISH, EpisodeType.PUBLIC,
 				upload.getFileKey(), null);
 		Assert.assertNotNull(episode.getId());
 	}

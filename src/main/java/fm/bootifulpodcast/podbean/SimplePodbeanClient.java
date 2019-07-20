@@ -82,32 +82,6 @@ public class SimplePodbeanClient implements PodbeanClient {
 		return uploadAuthorization;
 	}
 
-	/*
-	 * @Override public Episode publishEpisode(String title, String content, EpisodeStatus
-	 * status, EpisodeType type, String mediaKey, String logoKey) { var uri =
-	 * URI.create(" https://api.podbean.com/v1/episodes ".trim()); var bodyMap = new
-	 * HashMap<String, String>(); if (logoKey != null) { bodyMap.put("logo_key", logoKey);
-	 * } bodyMap.putAll(Map.of(// "title", title,// "content", content,// "status",
-	 * status.name().toLowerCase(),// "type", type.name().toLowerCase()// // "media_key",
-	 * mediaKey )); try { MultiValueMap<String, String> map = new
-	 * LinkedMultiValueMap<String, String>(); for (var k : bodyMap.keySet()) { map.add(k,
-	 * bodyMap.get(k)); } HttpEntity<MultiValueMap<String, String>> request = new
-	 * HttpEntity<>(map); ResponseEntity<String> responseEntity =
-	 * this.authenticatedRestTemplate .exchange(uri, HttpMethod.POST, request,
-	 * String.class); log.info("json: " + responseEntity.getBody()); } catch (Exception e)
-	 * { log.error("", e); } return null; }
-	 */
-
-	/**
-	 * TODO we need to figure out how to encode th
-	 * @param title
-	 * @param content
-	 * @param status
-	 * @param type
-	 * @param mediaKey
-	 * @param logoKey
-	 * @return
-	 */
 	@Override
 	public Episode publishEpisode(String title, String content, EpisodeStatus status,
 			EpisodeType type, String mediaKey, String logoKey) {
@@ -120,16 +94,23 @@ public class SimplePodbeanClient implements PodbeanClient {
 			bodyMap.add("media_key", mediaKey);
 		}
 		Map.of(//
-				// "access_token", this.tokenProvider.getToken().getToken(),
 				"title", title, //
 				"content", content, //
 				"status", status.name().toLowerCase(), //
 				"type", type.name().toLowerCase() //
 		).forEach(bodyMap::add);
 		try {
+			var ptr = new ParameterizedTypeReference<Map<String, Episode>>() {
+			};
+			// {"episode":{"id":"JQ7ZJB885BC","podcast_id":"o6DLxaF0purw","title":"t1563612148229","content":"c1563612148229","logo":null,"media_url":"https:\/\/starbuxman.podbean.com\/mf\/play\/v4nzz3\/intro.mp3","player_url":"https:\/\/www.podbean.com\/media\/player\/jq7zj-b885bc","permalink_url":"https:\/\/starbuxman.podbean.com\/e\/t1563612148229\/","publish_time":1563612148,"status":"publish","type":"public","duration":0,"object":"Episode"}}
 			var result = authenticatedRestTemplate.postForObject(uri, bodyMap,
 					String.class);
-			log.info(result);
+
+			Map<String, Episode> readValue = this.objectMapper.readValue(result,
+					new TypeReference<Map<String, Episode>>() {
+					});
+			log.info(readValue);
+			return readValue.get("episode");
 		}
 		catch (Exception e) {
 			if (e instanceof HttpClientErrorException.BadRequest) {
