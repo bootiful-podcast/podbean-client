@@ -46,9 +46,9 @@ public class PodbeanAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	PodbeanClient podbeanClient(TokenProvider tokenProvider,
-			@Qualifier(AUTHENTICATED) RestTemplate template, ObjectMapper om) {
-		return new SimplePodbeanClient(template, tokenProvider, om);
+	PodbeanClient podbeanClient(@Qualifier(AUTHENTICATED) RestTemplate template,
+			ObjectMapper om) {
+		return new SimplePodbeanClient(template, om);
 	}
 
 }

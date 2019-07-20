@@ -3,7 +3,6 @@ package fm.bootifulpodcast.podbean;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fm.bootifulpodcast.podbean.token.TokenProvider;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -15,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -34,18 +34,17 @@ public class SimplePodbeanClient implements PodbeanClient {
 
 	private final RestTemplate restTemplate = new RestTemplateBuilder().build();
 
-	private final TokenProvider tokenProvider;
-
 	private final ObjectMapper objectMapper;
+
+	private final String episodeUri = "https://api.podbean.com/v1/episodes".trim();
 
 	private final ParameterizedTypeReference<Map<String, Collection<Podcast>>> getAllPodcastsTypeReference = new ParameterizedTypeReference<>() {
 	};
 
-	SimplePodbeanClient(RestTemplate authenticatedRestTemplate, TokenProvider provider,
+	SimplePodbeanClient(RestTemplate authenticatedRestTemplate,
 			ObjectMapper objectMapper) {
 		this.authenticatedRestTemplate = authenticatedRestTemplate;
 		this.objectMapper = objectMapper;
-		this.tokenProvider = provider;
 	}
 
 	@Override
@@ -83,9 +82,24 @@ public class SimplePodbeanClient implements PodbeanClient {
 	}
 
 	@Override
+	public Episode updateEpisode(String episodeId, String title, String content,
+			EpisodeStatus status, EpisodeType type, String media, String logo) {
+
+		return mutateEpisode(URI.create(this.episodeUri + "/" + episodeId), title,
+				content, status, type, media, logo);
+
+	}
+
+	@Override
 	public Episode publishEpisode(String title, String content, EpisodeStatus status,
 			EpisodeType type, String mediaKey, String logoKey) {
-		var uri = URI.create(" https://api.podbean.com/v1/episodes ".trim());
+		return mutateEpisode(URI.create(this.episodeUri), title, content, status, type,
+				mediaKey, logoKey);
+	}
+
+	private Episode mutateEpisode(URI uri, String title, String content,
+			EpisodeStatus status, EpisodeType type, String mediaKey, String logoKey) {
+
 		var bodyMap = new LinkedMultiValueMap<String, String>();
 		if (StringUtils.hasText(logoKey)) {
 			bodyMap.add("logo_key", logoKey);
@@ -98,9 +112,10 @@ public class SimplePodbeanClient implements PodbeanClient {
 				"content", content, //
 				"status", status.name().toLowerCase(), //
 				"type", type.name().toLowerCase() //
-		).forEach(bodyMap::add);
+		)//
+				.forEach(bodyMap::add);
 		try {
-			var result = authenticatedRestTemplate.postForObject(uri, bodyMap,
+			var result = this.authenticatedRestTemplate.postForObject(uri, bodyMap,
 					String.class);
 			Map<String, Episode> readValue = this.objectMapper.readValue(result,
 					new TypeReference<Map<String, Episode>>() {
@@ -113,7 +128,7 @@ public class SimplePodbeanClient implements PodbeanClient {
 						.getResponseBodyAsString();
 				log.error(msg);
 			}
-			log.error("", e);
+			ReflectionUtils.rethrowRuntimeException(e);
 		}
 		return null;
 	}

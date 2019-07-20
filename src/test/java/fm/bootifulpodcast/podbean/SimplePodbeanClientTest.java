@@ -29,7 +29,7 @@ class SimplePodbeanClientTest {
 		var ti = new TokenInterceptor(tp);
 		var rt = new RestTemplateBuilder().interceptors(ti).defaultMessageConverters()
 				.additionalMessageConverters(new FormHttpMessageConverter()).build();
-		this.client = new SimplePodbeanClient(rt, tp, new ObjectMapper());
+		this.client = new SimplePodbeanClient(rt, new ObjectMapper());
 	}
 
 	@Test
