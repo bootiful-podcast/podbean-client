@@ -4,7 +4,6 @@ import fm.bootifulpodcast.podbean.token.TokenInterceptor;
 import fm.bootifulpodcast.podbean.token.TokenProvider;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpHeaders;
