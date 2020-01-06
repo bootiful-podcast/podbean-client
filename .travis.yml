@@ -18,4 +18,3 @@ install:
 
 script:
   -  mvn -X -e verify deploy
-  - ./build-osx.sh
