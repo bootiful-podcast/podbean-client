@@ -119,7 +119,7 @@ public class SimplePodbeanClient implements PodbeanClient {
 			var result = this.authenticatedRestTemplate.postForObject(uri, bodyMap,
 					String.class);
 			Map<String, Episode> readValue = this.objectMapper.readValue(result,
-					new TypeReference<Map<String, Episode>>() {
+					new TypeReference<>() {
 					});
 			return readValue.get("episode");
 		}
@@ -149,9 +149,8 @@ public class SimplePodbeanClient implements PodbeanClient {
 		var json = responseEntity.getBody();
 		var jsonNode = this.objectMapper.readTree(json);
 		JsonNode episodes = jsonNode.get("episodes");
-		return objectMapper.readValue(episodes.toString(),
-				new TypeReference<Collection<Episode>>() {
-				});
+		return objectMapper.readValue(episodes.toString(), new TypeReference<>() {
+		});
 	}
 
 	@Override
