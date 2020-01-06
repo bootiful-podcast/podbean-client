@@ -87,15 +87,15 @@ public class SimplePodbeanClient implements PodbeanClient {
 	@Override
 	public Episode updateEpisode(String episodeId, String title, String content,
 			EpisodeStatus status, EpisodeType type, String media, String logo) {
-		return mutateEpisode(URI.create(this.episodeUri + "/" + episodeId), title,
+		return this.mutateEpisode(URI.create(this.episodeUri + "/" + episodeId), title,
 				content, status, type, media, logo);
 	}
 
 	@Override
 	public Episode publishEpisode(String title, String content, EpisodeStatus status,
 			EpisodeType type, String mediaKey, String logoKey) {
-		return mutateEpisode(URI.create(this.episodeUri), title, content, status, type,
-				mediaKey, logoKey);
+		return this.mutateEpisode(URI.create(this.episodeUri), title, content, status,
+				type, mediaKey, logoKey);
 	}
 
 	private Episode mutateEpisode(URI uri, String title, String content,
