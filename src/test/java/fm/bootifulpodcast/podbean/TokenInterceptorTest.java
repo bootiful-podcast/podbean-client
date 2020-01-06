@@ -3,8 +3,9 @@ package fm.bootifulpodcast.podbean;
 import fm.bootifulpodcast.podbean.token.TokenInterceptor;
 import fm.bootifulpodcast.podbean.token.TokenProvider;
 import org.junit.Assert;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -20,7 +21,7 @@ import static org.mockito.internal.verification.VerificationModeFactory.times;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 
-class TokenInterceptorTest {
+public class TokenInterceptorTest {
 
 	private String expiry = Long.toString(10 * 1000);
 
@@ -34,8 +35,8 @@ class TokenInterceptorTest {
 
 	private TokenProvider tokenProvider;
 
-	@BeforeEach
-	void start() {
+	@Before
+	public void start() {
 		this.restTemplate = new RestTemplate();
 		this.tokenProvider = new TokenProvider(this.restTemplate);
 		this.interceptor = new TokenInterceptor(this.tokenProvider);
@@ -43,7 +44,7 @@ class TokenInterceptorTest {
 	}
 
 	@Test
-	void vendNewToken() {
+	public void vendNewToken() {
 		MockRestServiceServer server = init();
 		var tokenObj = this.tokenProvider.getToken();
 		Assert.assertTrue(
@@ -53,12 +54,12 @@ class TokenInterceptorTest {
 	}
 
 	@Test
-	void intercept() throws Exception {
+	public void intercept() throws Exception {
 		var execution = Mockito.mock(ClientHttpRequestExecution.class);
 		var httpRequest = Mockito.mock(HttpRequest.class);
 		HttpHeaders httpHeaders = Mockito.mock(HttpHeaders.class);
 		Mockito.when(httpRequest.getHeaders()).thenReturn(httpHeaders);
-		interceptor.intercept(httpRequest, new byte[0], execution);
+		this.interceptor.intercept(httpRequest, new byte[0], execution);
 		Mockito.verify(httpHeaders, times(1)).setBearerAuth(Mockito.anyString());
 	}
 
