@@ -36,8 +36,8 @@ class TokenInterceptorTest {
 
 	@BeforeEach
 	void start() {
-		this.tokenProvider = new TokenProvider(this.restTemplate);
 		this.restTemplate = new RestTemplate();
+		this.tokenProvider = new TokenProvider(this.restTemplate);
 		this.interceptor = new TokenInterceptor(this.tokenProvider);
 		this.server = this.init();
 	}
