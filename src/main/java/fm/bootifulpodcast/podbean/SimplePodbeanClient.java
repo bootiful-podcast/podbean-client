@@ -60,6 +60,9 @@ public class SimplePodbeanClient implements PodbeanClient {
 
 	@Override
 	public UploadAuthorization upload(MediaType mediaType, File resource, long filesize) {
+		log.debug("the resource is " + resource.getAbsolutePath()
+				+ " and the file size is " + filesize);
+
 		var results = new ParameterizedTypeReference<UploadAuthorization>() {
 		};
 		var filename = Objects.requireNonNull(resource.getName());
