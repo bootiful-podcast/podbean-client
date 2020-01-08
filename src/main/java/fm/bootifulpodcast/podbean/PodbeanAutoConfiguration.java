@@ -17,7 +17,7 @@ import org.springframework.web.client.RestTemplate;
 @AutoConfigureAfter(RestTemplateAutoConfiguration.class)
 public class PodbeanAutoConfiguration {
 
-	private static final String AUTHENTICATED = "authenticated";
+  private static final String AUTHENTICATED = "authenticatedPodbeanRestTemplate";
 
 	@Bean
 	RestTemplate restTemplate() {
