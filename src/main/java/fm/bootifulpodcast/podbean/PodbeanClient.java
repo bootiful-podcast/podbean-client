@@ -8,7 +8,8 @@ import java.util.Collection;
 /**
  * A Java client for the <a href=
  * "https://help.podbean.com/support/solutions/articles/25000008051-publishing-a-new-podcast-episode-via-podbean-api">
- * Podbean publication API</a>.
+ * Podbean podcast API</a>. You can use the Podbean API to publish podcast episodes, to
+ * retrieve information about the episodes, and to edit the episodes.
  *
  * @author Josh Long
  */
