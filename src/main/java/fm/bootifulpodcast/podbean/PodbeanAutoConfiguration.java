@@ -20,7 +20,7 @@ public class PodbeanAutoConfiguration {
 	private static final String AUTHENTICATED = "authenticatedPodbeanRestTemplate";
 
 	@Bean
-	RestTemplate restTemplate() {
+	RestTemplate defaultRestTemplateWithoutAuthentication() {
 		return new RestTemplateBuilder().build();
 	}
 
