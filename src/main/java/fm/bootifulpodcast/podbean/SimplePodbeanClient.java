@@ -41,7 +41,7 @@ public class SimplePodbeanClient implements PodbeanClient {
 	private final ParameterizedTypeReference<Map<String, Collection<Podcast>>> getAllPodcastsTypeReference = new ParameterizedTypeReference<>() {
 	};
 
-	SimplePodbeanClient(RestTemplate authenticatedRestTemplate,
+	public SimplePodbeanClient(RestTemplate authenticatedRestTemplate,
 			ObjectMapper objectMapper) {
 		this.authenticatedRestTemplate = authenticatedRestTemplate;
 		this.objectMapper = objectMapper;
@@ -62,7 +62,6 @@ public class SimplePodbeanClient implements PodbeanClient {
 	public UploadAuthorization upload(MediaType mediaType, File resource, long filesize) {
 		log.debug("the resource is " + resource.getAbsolutePath()
 				+ " and the file size is " + filesize);
-
 		var results = new ParameterizedTypeReference<UploadAuthorization>() {
 		};
 		var filename = Objects.requireNonNull(resource.getName());
