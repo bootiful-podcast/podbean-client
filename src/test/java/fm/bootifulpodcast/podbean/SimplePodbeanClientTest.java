@@ -52,7 +52,7 @@ public class SimplePodbeanClientTest {
 		log.info("file key: " + upload.toString());
 		long currentTimeMillis = System.currentTimeMillis();
 		var episode = client.publishEpisode("t" + currentTimeMillis,
-				"c" + currentTimeMillis, EpisodeStatus.PUBLISH, EpisodeType.PUBLIC,
+				"c" + currentTimeMillis, EpisodeStatus.DRAFT, EpisodeType.PUBLIC,
 				upload.getFileKey(), null);
 		Assert.assertNotNull(episode.getId());
 	}
