@@ -59,6 +59,11 @@ public class SimplePodbeanClient implements PodbeanClient {
 	}
 
 	@Override
+	public UploadAuthorization upload(MediaType mt, File f) {
+		return this.upload(mt, f, f.length());
+	}
+
+	@Override
 	public UploadAuthorization upload(MediaType mediaType, File resource, long filesize) {
 		log.debug("the resource is " + resource.getAbsolutePath()
 				+ " and the file size is " + filesize);
@@ -69,7 +74,7 @@ public class SimplePodbeanClient implements PodbeanClient {
 				.fromHttpUrl("https://api.podbean.com/v1/files/uploadAuthorize")
 				.queryParam("content_type", mediaType.toString())//
 				.queryParam("filename", filename)//
-				.queryParam("filesize", filesize)//
+				.queryParam("filesize", resource.length())//
 				.build()//
 				.toUriString();
 		Assert.isTrue(resource.exists(), "the resource must point to a valid file");
@@ -117,6 +122,7 @@ public class SimplePodbeanClient implements PodbeanClient {
 		try {
 			var result = this.authenticatedRestTemplate.postForObject(uri, bodyMap,
 					String.class);
+			log.info(result);
 			Map<String, Episode> readValue = this.objectMapper.readValue(result,
 					new TypeReference<>() {
 					});

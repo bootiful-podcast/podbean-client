@@ -17,6 +17,8 @@ public interface PodbeanClient {
 
 	Collection<Podcast> getAllPodcasts();
 
+	UploadAuthorization upload(MediaType mediaType, File file);
+
 	UploadAuthorization upload(MediaType mediaType, File resource, long filesize);
 
 	Episode updateEpisode(String episodeId, String title, String content,

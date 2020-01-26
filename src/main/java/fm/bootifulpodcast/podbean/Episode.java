@@ -10,9 +10,9 @@ import java.util.Date;
 @Data
 public class Episode {
 
-	private final String podcastId, id, title, content, logo, status, type;
+	private final String podcastId, id, title, content, status, type;
 
-	private final URI mediaUrl, permalinkUrl, playerUrl;
+	private final URI mediaUrl, permalinkUrl, playerUrl, logoUrl;
 
 	private final Date publishTime;
 
@@ -26,7 +26,7 @@ public class Episode {
 			@JsonProperty("id") String id, //
 			@JsonProperty("title") String title, //
 			@JsonProperty("content") String content, //
-			@JsonProperty("logo") String logo, //
+			@JsonProperty("logo") URI logo, //
 			@JsonProperty("status") String status, //
 			@JsonProperty("type") String type, //
 			@JsonProperty("media_url") URI mediaUrl, //
@@ -39,7 +39,7 @@ public class Episode {
 		this.title = title;
 		this.content = content;
 		this.publishTime = publishTime;
-		this.logo = logo;
+		this.logoUrl = logo;
 		this.playerUrl = playerUrl;
 		this.mediaUrl = mediaUrl;
 		this.permalinkUrl = permalinkUrl;

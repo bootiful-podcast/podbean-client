@@ -23,11 +23,14 @@ public class SimplePodbeanClientTest {
 	@Autowired
 	private SimplePodbeanClient client;
 
-	private File file;
+	private File mp3;
+
+	private File jpg;
 
 	@Before
 	public void before() throws Exception {
-		this.file = new ClassPathResource("/super-compressed-file-for-tests.mp3")
+		this.jpg = new ClassPathResource("/test-profile-image.jpg").getFile();
+		this.mp3 = new ClassPathResource("/super-compressed-file-for-tests.mp3")
 				.getFile();
 	}
 
@@ -47,21 +50,22 @@ public class SimplePodbeanClientTest {
 	@Test
 	public void createEpisode() {
 		// {"episode":{"id":"IUUETB885A2","podcast_id":"o6DLxaF0purw","title":"t1563611568056","content":"c1563611568056","logo":null,"media_url":"https:\/\/starbuxman.podbean.com\/mf\/play\/jj6eg5\/intro.mp3","player_url":"https:\/\/www.podbean.com\/media\/player\/iuuet-b885a2","permalink_url":null,"publish_time":1563611568,"status":"draft","type":"public","duration":0,"object":"Episode"}}
-		var mediaType = MediaType.parseMediaType("audio/mpeg");
-		var upload = client.upload(mediaType, file, file.length());
-		log.info("file key: " + upload.toString());
-		long currentTimeMillis = System.currentTimeMillis();
-		var episode = client.publishEpisode("t" + currentTimeMillis,
+		var currentTimeMillis = System.currentTimeMillis();
+		var uploadMp3 = this.client.upload(MediaType.parseMediaType("audio/mpeg"),
+				this.mp3, this.mp3.length());
+		var uploadJpg = this.client.upload(MediaType.IMAGE_JPEG, this.jpg,
+				this.jpg.length());
+		var episode = this.client.publishEpisode("t" + currentTimeMillis,
 				"c" + currentTimeMillis, EpisodeStatus.DRAFT, EpisodeType.PUBLIC,
-				upload.getFileKey(), null);
+				uploadMp3.getFileKey(), uploadJpg.getFileKey());
 		Assert.assertNotNull(episode.getId());
 	}
 
 	@Test
 	public void upload() {
-		Assert.assertTrue(file.exists());
+		Assert.assertTrue(this.mp3.exists());
 		var mediaType = MediaType.parseMediaType("audio/mpeg");
-		UploadAuthorization upload = client.upload(mediaType, file, file.length());
+		var upload = client.upload(mediaType, this.mp3, this.mp3.length());
 		log.info(upload);
 	}
 
