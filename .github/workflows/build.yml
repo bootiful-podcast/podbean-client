@@ -35,4 +35,4 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Build the application
-        run: mvn -X -e -Dspring.profiles.active=ci verify deploy
+        run: mvn -Dspring.profiles.active=ci verify deploy
