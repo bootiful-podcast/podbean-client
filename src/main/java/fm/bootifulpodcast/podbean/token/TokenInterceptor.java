@@ -16,8 +16,8 @@ public class TokenInterceptor implements ClientHttpRequestInterceptor {
 	private final TokenProvider tokenProvider;
 
 	@Override
-	public ClientHttpResponse intercept(HttpRequest request, byte[] body,
-			ClientHttpRequestExecution execution) throws IOException {
+	public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution)
+			throws IOException {
 		var token = this.tokenProvider.getToken();
 		request.getHeaders().setBearerAuth(token.getToken());
 		return execution.execute(request, body);

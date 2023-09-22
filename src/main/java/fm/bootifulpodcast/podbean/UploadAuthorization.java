@@ -14,8 +14,7 @@ public class UploadAuthorization {
 	private final String presignedUrl;
 
 	@JsonCreator
-	public UploadAuthorization(@JsonProperty("expire_at") int expireAt,
-			@JsonProperty("file_key") String fileKey,
+	public UploadAuthorization(@JsonProperty("expire_at") int expireAt, @JsonProperty("file_key") String fileKey,
 			@JsonProperty("presigned_url") String presignedUrl) {
 		this.expireAt = expireAt;
 		this.fileKey = fileKey;

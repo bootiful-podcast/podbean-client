@@ -28,8 +28,7 @@ public class TokenProvider {
 	}
 
 	public TokenProvider(String clientId, String clientSecret) {
-		this(new RestTemplateBuilder().basicAuthentication(clientId, clientSecret)
-				.build());
+		this(new RestTemplateBuilder().basicAuthentication(clientId, clientSecret).build());
 	}
 
 	public TokenProvider(RestTemplate restTemplate) {
@@ -51,15 +50,13 @@ public class TokenProvider {
 			var request = Map.of("grant_type", "client_credentials");
 			var type = new ParameterizedTypeReference<Map<String, String>>() {
 			};
-			var responseEntity = this.template.exchange(this.uri, HttpMethod.POST,
-					new HttpEntity<>(request), type);
+			var responseEntity = this.template.exchange(this.uri, HttpMethod.POST, new HttpEntity<>(request), type);
 			Assert.notNull(responseEntity, "the response should not be null");
 			if (responseEntity.getStatusCode().is2xxSuccessful()) {
 				var map = Objects.requireNonNull(responseEntity.getBody());
 				var accessToken = map.get("access_token");
 				var expiry = Long.parseLong(map.get("expires_in"));
-				var newToken = new Token(accessToken,
-						System.currentTimeMillis() + expiry);
+				var newToken = new Token(accessToken, System.currentTimeMillis() + expiry);
 				this.token.set(newToken);
 				log.info("returning new token: " + this.token.get());
 			}

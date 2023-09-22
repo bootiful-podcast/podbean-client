@@ -21,11 +21,11 @@ public interface PodbeanClient {
 
 	UploadAuthorization upload(MediaType mediaType, File resource, long filesize);
 
-	Episode updateEpisode(String episodeId, String title, String content,
-			EpisodeStatus status, EpisodeType type, String media, String logo);
+	Episode updateEpisode(String episodeId, String title, String content, EpisodeStatus status, EpisodeType type,
+			String media, String logo);
 
-	Episode publishEpisode(String title, String content, EpisodeStatus status,
-			EpisodeType type, String mediaKey, String logoKey);
+	Episode publishEpisode(String title, String content, EpisodeStatus status, EpisodeType type, String mediaKey,
+			String logoKey);
 
 	Collection<Episode> getEpisodes(int offset, int limit);
 

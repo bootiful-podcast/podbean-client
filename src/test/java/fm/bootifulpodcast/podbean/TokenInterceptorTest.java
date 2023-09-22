@@ -46,8 +46,7 @@ public class TokenInterceptorTest {
 	public void vendNewToken() {
 		MockRestServiceServer server = init();
 		var tokenObj = this.tokenProvider.getToken();
-		Assert.assertTrue(
-				tokenObj.getExpiration() > System.currentTimeMillis() + (8 * 1000));
+		Assert.assertTrue(tokenObj.getExpiration() > System.currentTimeMillis() + (8 * 1000));
 		Assert.assertEquals(tokenObj.getToken(), this.token);
 		server.verify();
 	}
@@ -64,12 +63,10 @@ public class TokenInterceptorTest {
 
 	private MockRestServiceServer init() {
 		var server = MockRestServiceServer.bindTo(restTemplate).build();
-		server.expect(ExpectedCount.once(), requestTo(tokenProvider.getTokenUri()))
-				.andExpect(method(HttpMethod.POST)).andRespond(
-						MockRestResponseCreators.withSuccess(
-								"{\"access_token\": \"" + token
-										+ "\" , \"expires_in\": \"" + expiry + "\"}",
-								MediaType.APPLICATION_JSON));
+		server.expect(ExpectedCount.once(), requestTo(tokenProvider.getTokenUri())).andExpect(method(HttpMethod.POST))
+				.andRespond(MockRestResponseCreators.withSuccess(
+						"{\"access_token\": \"" + token + "\" , \"expires_in\": \"" + expiry + "\"}",
+						MediaType.APPLICATION_JSON));
 		return server;
 	}
 

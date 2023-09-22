@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import fm.bootifulpodcast.podbean.token.TokenInterceptor;
 import fm.bootifulpodcast.podbean.token.TokenProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.web.client.RestTemplateAutoConfiguration;
@@ -13,9 +12,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
+/**
+ * @author Josh Long
+ */
 @Configuration
 @AutoConfigureAfter(RestTemplateAutoConfiguration.class)
-public class PodbeanAutoConfiguration {
+class PodbeanAutoConfiguration {
 
 	private static final String AUTHENTICATED = "authenticatedPodbeanRestTemplate";
 
@@ -26,8 +28,7 @@ public class PodbeanAutoConfiguration {
 
 	@Bean
 	@Qualifier(AUTHENTICATED)
-	RestTemplate authenticatedPodbeanRestTemplate(RestTemplateBuilder builder,
-			TokenInterceptor tokenInterceptor) {
+	RestTemplate authenticatedPodbeanRestTemplate(RestTemplateBuilder builder, TokenInterceptor tokenInterceptor) {
 		return builder.interceptors(tokenInterceptor).build();
 	}
 
@@ -39,15 +40,13 @@ public class PodbeanAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	TokenProvider tokenProvider(@Value("${podbean.client-id}") String clientId,
-			@Value("${podbean.client-secret}") String clientSecret) {
-		return new TokenProvider(clientId, clientSecret);
+	TokenProvider tokenProvider(PodbeanProperties properties) {
+		return new TokenProvider(properties.clientId(), properties.clientSecret());
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
-	PodbeanClient podbeanClient(@Qualifier(AUTHENTICATED) RestTemplate template,
-			ObjectMapper om) {
+	PodbeanClient podbeanClient(@Qualifier(AUTHENTICATED) RestTemplate template, ObjectMapper om) {
 		return new SimplePodbeanClient(template, om);
 	}
 

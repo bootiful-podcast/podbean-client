@@ -30,8 +30,7 @@ public class SimplePodbeanClientTest {
 	@Before
 	public void before() throws Exception {
 		this.jpg = new ClassPathResource("/test-profile-image.jpg").getFile();
-		this.mp3 = new ClassPathResource("/super-compressed-file-for-tests.mp3")
-				.getFile();
+		this.mp3 = new ClassPathResource("/super-compressed-file-for-tests.mp3").getFile();
 	}
 
 	@Test
@@ -51,13 +50,10 @@ public class SimplePodbeanClientTest {
 	public void createEpisode() {
 		// {"episode":{"id":"IUUETB885A2","podcast_id":"o6DLxaF0purw","title":"t1563611568056","content":"c1563611568056","logo":null,"media_url":"https:\/\/starbuxman.podbean.com\/mf\/play\/jj6eg5\/intro.mp3","player_url":"https:\/\/www.podbean.com\/media\/player\/iuuet-b885a2","permalink_url":null,"publish_time":1563611568,"status":"draft","type":"public","duration":0,"object":"Episode"}}
 		var currentTimeMillis = System.currentTimeMillis();
-		var uploadMp3 = this.client.upload(MediaType.parseMediaType("audio/mpeg"),
-				this.mp3, this.mp3.length());
-		var uploadJpg = this.client.upload(MediaType.IMAGE_JPEG, this.jpg,
-				this.jpg.length());
-		var episode = this.client.publishEpisode("t" + currentTimeMillis,
-				"c" + currentTimeMillis, EpisodeStatus.DRAFT, EpisodeType.PUBLIC,
-				uploadMp3.getFileKey(), uploadJpg.getFileKey());
+		var uploadMp3 = this.client.upload(MediaType.parseMediaType("audio/mpeg"), this.mp3, this.mp3.length());
+		var uploadJpg = this.client.upload(MediaType.IMAGE_JPEG, this.jpg, this.jpg.length());
+		var episode = this.client.publishEpisode("t" + currentTimeMillis, "c" + currentTimeMillis, EpisodeStatus.DRAFT,
+				EpisodeType.PUBLIC, uploadMp3.getFileKey(), uploadJpg.getFileKey());
 		Assert.assertNotNull(episode.getId());
 	}
 

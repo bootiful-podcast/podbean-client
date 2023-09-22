@@ -32,8 +32,7 @@ public class Episode {
 			@JsonProperty("media_url") URI mediaUrl, //
 			@JsonProperty("permalink_url") URI permalinkUrl, //
 			@JsonProperty("player_url") URI playerUrl, //
-			@JsonProperty("publish_time") Date publishTime,
-			@JsonProperty("duration") int duration) {
+			@JsonProperty("publish_time") Date publishTime, @JsonProperty("duration") int duration) {
 		this.id = id;
 		this.podcastId = podcastId;
 		this.title = title;
