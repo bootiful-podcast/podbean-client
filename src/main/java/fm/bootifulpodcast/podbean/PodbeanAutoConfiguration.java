@@ -13,6 +13,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
 /**
+ * Configures the default arrangement of objects to, assuming some
+ * {@link org.springframework.boot.context.properties.ConfigurationProperties properties},
+ * get a working client to talk to the <a href="https://podbean.com">Podbean</a> API.
+ *
  * @author Josh Long
  */
 @Configuration

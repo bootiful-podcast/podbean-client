@@ -1,7 +1,7 @@
 package fm.bootifulpodcast.podbean.token;
 
 import lombok.SneakyThrows;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -14,7 +14,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
-@Log4j2
+/**
+ * A thing that can acquire and maintain a token for authentication given client
+ * credentials
+ *
+ * @author Josh Long
+ */
+@Slf4j
 public class TokenProvider {
 
 	private final URI uri;
@@ -23,20 +29,36 @@ public class TokenProvider {
 
 	private final RestTemplate template;
 
+	/**
+	 * returns the URI of the token
+	 * @return the {@link URI }
+	 */
 	public URI getTokenUri() {
 		return this.uri;
 	}
 
+	/**
+	 * Configure a new instance with the client credentials
+	 * @param clientId the client id
+	 * @param clientSecret the client secret
+	 */
 	public TokenProvider(String clientId, String clientSecret) {
 		this(new RestTemplateBuilder().basicAuthentication(clientId, clientSecret).build());
 	}
 
+	/**
+	 * Provide only the {@link RestTemplate}
+	 * @param restTemplate a {@link RestTemplate}
+	 */
 	public TokenProvider(RestTemplate restTemplate) {
 		this.template = restTemplate;
 		this.uri = URI.create("https://api.podbean.com/v1/oauth/token");
 	}
 
-	// testing
+	/**
+	 * Returns a token
+	 * @return a {@link Token}
+	 */
 	@SneakyThrows
 	public Token getToken() {
 		var minute = 1000 * 60;

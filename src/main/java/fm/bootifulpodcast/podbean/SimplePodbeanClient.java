@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.FileSystemResource;
@@ -27,7 +27,12 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
-@Log4j2
+/**
+ * default implementation of the {@link PodbeanClient}
+ *
+ * @author Josh Long
+ */
+@Slf4j
 public class SimplePodbeanClient implements PodbeanClient {
 
 	private final RestTemplate authenticatedRestTemplate;
@@ -40,6 +45,12 @@ public class SimplePodbeanClient implements PodbeanClient {
 
 	private final ParameterizedTypeReference<Map<String, Collection<Podcast>>> getAllPodcastsTypeReference = new ParameterizedTypeReference<>() {
 	};
+
+	/**
+	 * construct a valid {@link PodbeanClient }
+	 * @param authenticatedRestTemplate a correctly configured {@link RestTemplate}
+	 * @param objectMapper an {@link ObjectMapper} from Jackson
+	 */
 
 	public SimplePodbeanClient(RestTemplate authenticatedRestTemplate, ObjectMapper objectMapper) {
 		this.authenticatedRestTemplate = authenticatedRestTemplate;
@@ -75,8 +86,11 @@ public class SimplePodbeanClient implements PodbeanClient {
 		Assert.isTrue(resource.exists(), "the resource must point to a valid file");
 		var responseEntity = this.authenticatedRestTemplate.exchange(uriString, HttpMethod.GET, null, results);
 		var uploadAuthorization = responseEntity.getBody();
-		log.info(uploadAuthorization);
-		var presignedUrl = Objects.requireNonNull(uploadAuthorization).getPresignedUrl();
+		Assert.notNull(uploadAuthorization, "the uploadAuthorization must not be null");
+		if (log.isDebugEnabled()) {
+			log.debug(uploadAuthorization.toString());
+		}
+		var presignedUrl = uploadAuthorization.getPresignedUrl();
 		var result = this.doUploadToS3(presignedUrl, mediaType, resource);
 		Assert.isTrue(result, "the result should be " + HttpStatus.OK.value());
 		return uploadAuthorization;

@@ -1,8 +1,20 @@
 package fm.bootifulpodcast.podbean;
 
+/**
+ * the status of the episode once it's been published
+ *
+ * @author Josh Long
+ */
 public enum EpisodeStatus {
 
-	PUBLISH, //
+	/**
+	 * published...
+	 */
+	PUBLISH,
+
+	/**
+	 * or draft
+	 */
 	DRAFT
 
 }

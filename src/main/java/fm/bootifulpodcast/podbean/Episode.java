@@ -7,6 +7,12 @@ import lombok.Data;
 import java.net.URI;
 import java.util.Date;
 
+/**
+ *
+ * Represents a given episode
+ *
+ * @author Josh Long
+ */
 @Data
 public class Episode {
 
@@ -21,6 +27,21 @@ public class Episode {
 	@JsonProperty
 	private String object;
 
+	/**
+	 * constructs a new {@link Episode} from attributes gleemed in the JSON
+	 * @param podcastId the podcast ID
+	 * @param id an arbitrary ID
+	 * @param title the title
+	 * @param content the content
+	 * @param logo the logo
+	 * @param status the status
+	 * @param type the type
+	 * @param mediaUrl the URL for the media
+	 * @param permalinkUrl the URL for the permalink
+	 * @param playerUrl the player URL
+	 * @param publishTime the time of publication
+	 * @param duration the duration
+	 */
 	@JsonCreator
 	public Episode(@JsonProperty("podcast_id") String podcastId, //
 			@JsonProperty("id") String id, //

@@ -7,6 +7,12 @@ import lombok.Data;
 import java.util.ArrayList;
 import java.util.Collection;
 
+/**
+ * A representation of the Podcast, the thing to which we're contributing new
+ * {@link Episode episodes}
+ *
+ * @author Josh Long
+ */
 @Data
 public class Podcast {
 
@@ -15,6 +21,15 @@ public class Podcast {
 	@JsonProperty("allow_episode_type")
 	private final Collection<String> allowEpisodeType = new ArrayList<>();
 
+	/**
+	 * create a new {@link Podcast } given attributes from a JSON structure
+	 * @param id the Podcast ID
+	 * @param title the title
+	 * @param desc the description
+	 * @param logo the logo
+	 * @param website the website
+	 * @param categoryName the category name
+	 */
 	@JsonCreator
 	public Podcast(@JsonProperty("id") String id, //
 			@JsonProperty("title") String title, //
