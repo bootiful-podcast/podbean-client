@@ -1,23 +1,20 @@
 package fm.bootifulpodcast.podbean;
 
 import lombok.extern.log4j.Log4j2;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.File;
 import java.util.Collection;
 
 @Log4j2
 @SpringBootTest
-@RunWith(SpringRunner.class)
 public class SimplePodbeanClientTest {
 
 	@Autowired
@@ -27,7 +24,7 @@ public class SimplePodbeanClientTest {
 
 	private File jpg;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		this.jpg = new ClassPathResource("/test-profile-image.jpg").getFile();
 		this.mp3 = new ClassPathResource("/super-compressed-file-for-tests.mp3").getFile();
@@ -35,14 +32,14 @@ public class SimplePodbeanClientTest {
 
 	@Test
 	public void getEpisodes() {
-		Assert.assertNotNull(this.client);
+		Assertions.assertNotNull(this.client);
 		Collection<Episode> episodes = this.client.getEpisodes();
-		Assert.assertTrue("there should be more than one episode", episodes.size() > 0);
+		Assertions.assertTrue(!episodes.isEmpty(), "there should be more than one episode");
 		Episode next = episodes.iterator().next();
-		Assert.assertNotNull(next.getId());
-		Assert.assertNotNull(next.getPodcastId());
-		Assert.assertNotNull(next.getContent());
-		Assert.assertNotNull(next.getMediaUrl());
+		Assertions.assertNotNull(next.getId());
+		Assertions.assertNotNull(next.getPodcastId());
+		Assertions.assertNotNull(next.getContent());
+		Assertions.assertNotNull(next.getMediaUrl());
 		episodes.forEach(log::info);
 	}
 
@@ -54,12 +51,12 @@ public class SimplePodbeanClientTest {
 		var uploadJpg = this.client.upload(MediaType.IMAGE_JPEG, this.jpg, this.jpg.length());
 		var episode = this.client.publishEpisode("t" + currentTimeMillis, "c" + currentTimeMillis, EpisodeStatus.DRAFT,
 				EpisodeType.PUBLIC, uploadMp3.getFileKey(), uploadJpg.getFileKey());
-		Assert.assertNotNull(episode.getId());
+		Assertions.assertNotNull(episode.getId());
 	}
 
 	@Test
 	public void upload() {
-		Assert.assertTrue(this.mp3.exists());
+		Assertions.assertTrue(this.mp3.exists());
 		var mediaType = MediaType.parseMediaType("audio/mpeg");
 		var upload = client.upload(mediaType, this.mp3, this.mp3.length());
 		log.info(upload);

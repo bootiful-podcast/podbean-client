@@ -2,9 +2,9 @@ package fm.bootifulpodcast.podbean;
 
 import fm.bootifulpodcast.podbean.token.TokenInterceptor;
 import fm.bootifulpodcast.podbean.token.TokenProvider;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -34,7 +34,7 @@ public class TokenInterceptorTest {
 
 	private TokenProvider tokenProvider;
 
-	@Before
+	@BeforeEach
 	public void start() {
 		this.restTemplate = new RestTemplate();
 		this.tokenProvider = new TokenProvider(this.restTemplate);
@@ -46,8 +46,8 @@ public class TokenInterceptorTest {
 	public void vendNewToken() {
 		MockRestServiceServer server = init();
 		var tokenObj = this.tokenProvider.getToken();
-		Assert.assertTrue(tokenObj.getExpiration() > System.currentTimeMillis() + (8 * 1000));
-		Assert.assertEquals(tokenObj.getToken(), this.token);
+		Assertions.assertTrue(tokenObj.getExpiration() > System.currentTimeMillis() + (8 * 1000));
+		Assertions.assertEquals(tokenObj.getToken(), this.token);
 		server.verify();
 	}
 
