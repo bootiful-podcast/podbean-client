@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.web.client.RestTemplateAutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
  * @author Josh Long
  */
 @Configuration
+@EnableConfigurationProperties(PodbeanConfigurationProperties.class)
 @AutoConfigureAfter(RestTemplateAutoConfiguration.class)
 class PodbeanAutoConfiguration {
 
@@ -44,7 +46,7 @@ class PodbeanAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	TokenProvider tokenProvider(PodbeanProperties properties) {
+	TokenProvider tokenProvider(PodbeanConfigurationProperties properties) {
 		return new TokenProvider(properties.clientId(), properties.clientSecret());
 	}
 
