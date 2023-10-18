@@ -31,6 +31,23 @@ public class SimplePodbeanClientTest {
 	}
 
 	@Test
+	void getEpisodeRange() throws Exception {
+		var max = 100;
+		var er = this.client.getEpisodeRange(0, max);
+		Assertions.assertTrue(er.hasMore());
+		Assertions.assertEquals(er.offset(), 0);
+		Assertions.assertEquals(er.limit(), max);
+		Assertions.assertEquals(er.episodes().size(), max);
+		Assertions.assertTrue(er.count() > 0);
+	}
+
+	@Test
+	void getAllEpisodes() throws Exception {
+		var episodes = this.client.getAllEpisodes();
+		Assertions.assertTrue(episodes.size() > 200);
+	}
+
+	@Test
 	public void getEpisodes() {
 		Assertions.assertNotNull(this.client);
 		Collection<Episode> episodes = this.client.getEpisodes();

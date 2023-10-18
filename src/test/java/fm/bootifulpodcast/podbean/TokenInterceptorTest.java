@@ -44,10 +44,9 @@ public class TokenInterceptorTest {
 
 	@Test
 	public void vendNewToken() {
-		MockRestServiceServer server = init();
 		var tokenObj = this.tokenProvider.getToken();
-		Assertions.assertTrue(tokenObj.getExpiration() > System.currentTimeMillis() + (8 * 1000));
-		Assertions.assertEquals(tokenObj.getToken(), this.token);
+		Assertions.assertTrue(tokenObj.expiration() > System.currentTimeMillis() + (8 * 1000));
+		Assertions.assertEquals(tokenObj.token(), this.token);
 		server.verify();
 	}
 

@@ -63,8 +63,7 @@ public class TokenProvider {
 	public Token getToken() {
 		var minute = 1000 * 60;
 		var currentToken = this.token.get();
-		var shouldEvaluate = currentToken == null
-				|| (currentToken.getExpiration() - minute) < System.currentTimeMillis();
+		var shouldEvaluate = currentToken == null || (currentToken.expiration() - minute) < System.currentTimeMillis();
 		if (shouldEvaluate) {
 			if (log.isDebugEnabled()) {
 				log.debug("We need to obtain a fresh token, the old one expired.");

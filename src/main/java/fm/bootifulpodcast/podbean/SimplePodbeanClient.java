@@ -1,7 +1,6 @@
 package fm.bootifulpodcast.podbean;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -22,10 +21,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.File;
 import java.net.URI;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * default implementation of the {@link PodbeanClient}
@@ -109,6 +105,51 @@ public class SimplePodbeanClient implements PodbeanClient {
 		return this.mutateEpisode(URI.create(this.episodeUri), title, content, status, type, mediaKey, logoKey);
 	}
 
+	@Override
+	public Collection<Episode> getAllEpisodes() {
+		var episodes = new LinkedHashSet<Episode>();
+		var offset = 0;
+		var step = 100;
+		while (true) {
+			var er = getEpisodeRange(offset, step);
+			episodes.addAll(er.episodes());
+			offset += step;
+			if (!er.hasMore())
+				break;
+		}
+		return episodes;
+	}
+
+	@Override
+	public EpisodeRange getEpisodeRange(int offset) {
+		return this.getEpisodeRange(offset, 100);
+	}
+
+	// todo
+	@Override
+	@SneakyThrows
+	public EpisodeRange getEpisodeRange(int offset, int limit) {
+
+		var uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl("https://api.podbean.com/v1/episodes");
+		if (offset > 0)
+			uriComponentsBuilder.queryParam("offset", offset);
+		if (limit > 0)
+			uriComponentsBuilder.queryParam("limit", limit);
+		var url = uriComponentsBuilder.build().toUriString();
+		var responseEntity = this.authenticatedRestTemplate.exchange(url, HttpMethod.GET, null, String.class);
+		var json = responseEntity.getBody();
+		var jsonNode = this.objectMapper.readTree(json);
+		var episodesNode = jsonNode.get("episodes");
+		var episodes = objectMapper.readValue(episodesNode.toString(), new TypeReference<Collection<Episode>>() {
+		});
+		var countField = jsonNode.get("count").asInt();
+		var offsetField = jsonNode.get("offset").asInt();
+		var hasMoreField = jsonNode.get("has_more").asBoolean();
+		var limitField = jsonNode.get("limit").asInt();
+		return new EpisodeRange(episodes, offsetField, hasMoreField, countField, limitField);
+
+	}
+
 	private Episode mutateEpisode(URI uri, String title, String content, EpisodeStatus status, EpisodeType type,
 			String mediaKey, String logoKey) {
 
@@ -144,6 +185,7 @@ public class SimplePodbeanClient implements PodbeanClient {
 	}
 
 	@Override
+	@Deprecated
 	@SneakyThrows
 	public Collection<Episode> getEpisodes(int offset, int limit) {
 		var uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl("https://api.podbean.com/v1/episodes");
@@ -155,12 +197,13 @@ public class SimplePodbeanClient implements PodbeanClient {
 		var responseEntity = this.authenticatedRestTemplate.exchange(url, HttpMethod.GET, null, String.class);
 		var json = responseEntity.getBody();
 		var jsonNode = this.objectMapper.readTree(json);
-		JsonNode episodes = jsonNode.get("episodes");
+		var episodes = jsonNode.get("episodes");
 		return objectMapper.readValue(episodes.toString(), new TypeReference<>() {
 		});
 	}
 
 	@Override
+	@Deprecated
 	public Collection<Episode> getEpisodes() {
 		return getEpisodes(0, 0);
 	}

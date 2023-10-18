@@ -67,18 +67,31 @@ public interface PodbeanClient {
 	Episode publishEpisode(String title, String content, EpisodeStatus status, EpisodeType type, String mediaKey,
 			String logoKey);
 
+	Collection<Episode> getAllEpisodes();
+
+	/**
+	 * default with the max allowed per batch which I think is 100
+	 * @param offset
+	 * @return
+	 */
+	EpisodeRange getEpisodeRange(int offset);
+
+	EpisodeRange getEpisodeRange(int offset, int limit);
+
 	/**
 	 * returns a collection of {@link Episode } given paging dimensions
 	 * @param offset the offset
 	 * @param limit the limit
 	 * @return a collection of satisfactory {@link Episode}
 	 */
+	@Deprecated
 	Collection<Episode> getEpisodes(int offset, int limit);
 
 	/**
 	 * get all episodes
 	 * @return returns all episodes
 	 */
+	@Deprecated
 	Collection<Episode> getEpisodes();
 
 }
