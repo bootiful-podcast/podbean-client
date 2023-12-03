@@ -1,8 +1,9 @@
-package fm.bootifulpodcast.podbean;
+package com.joshlong.podbean;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fm.bootifulpodcast.podbean.token.TokenInterceptor;
-import fm.bootifulpodcast.podbean.token.TokenProvider;
+import com.joshlong.podbean.token.TokenInterceptor;
+import com.joshlong.podbean.token.ClientCredentialsTokenProvider;
+import com.joshlong.podbean.token.TokenProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -28,6 +29,7 @@ class PodbeanAutoConfiguration {
 	private static final String AUTHENTICATED = "authenticatedPodbeanRestTemplate";
 
 	@Bean
+	@ConditionalOnMissingBean
 	RestTemplate defaultRestTemplateWithoutAuthentication() {
 		return new RestTemplateBuilder().build();
 	}
@@ -45,9 +47,9 @@ class PodbeanAutoConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnMissingBean
-	TokenProvider tokenProvider(PodbeanConfigurationProperties properties) {
-		return new TokenProvider(properties.clientId(), properties.clientSecret());
+	@ConditionalOnMissingBean(TokenProvider.class)
+	ClientCredentialsTokenProvider tokenProvider(PodbeanConfigurationProperties properties) {
+		return new ClientCredentialsTokenProvider(properties.clientId(), properties.clientSecret());
 	}
 
 	@Bean

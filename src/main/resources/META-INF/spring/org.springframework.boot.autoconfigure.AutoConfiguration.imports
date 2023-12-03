@@ -1,2 +1,2 @@
-fm.bootifulpodcast.podbean.aot.AotAutoConfiguration
-fm.bootifulpodcast.podbean.PodbeanAutoConfiguration
+aot.com.joshlong.podbean.AotAutoConfiguration
+com.joshlong.podbean.PodbeanAutoConfiguration

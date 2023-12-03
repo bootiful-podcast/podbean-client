@@ -1,4 +1,4 @@
-package fm.bootifulpodcast.podbean;
+package com.joshlong.podbean;
 
 import java.util.Collection;
 

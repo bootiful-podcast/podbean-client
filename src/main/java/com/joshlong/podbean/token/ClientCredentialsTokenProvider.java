@@ -1,4 +1,4 @@
-package fm.bootifulpodcast.podbean.token;
+package com.joshlong.podbean.token;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author Josh Long
  */
 @Slf4j
-public class TokenProvider {
+public class ClientCredentialsTokenProvider implements TokenProvider {
 
 	private final URI uri;
 
@@ -42,7 +42,7 @@ public class TokenProvider {
 	 * @param clientId the client id
 	 * @param clientSecret the client secret
 	 */
-	public TokenProvider(String clientId, String clientSecret) {
+	public ClientCredentialsTokenProvider(String clientId, String clientSecret) {
 		this(new RestTemplateBuilder().basicAuthentication(clientId, clientSecret).build());
 	}
 
@@ -50,7 +50,7 @@ public class TokenProvider {
 	 * Provide only the {@link RestTemplate}
 	 * @param restTemplate a {@link RestTemplate}
 	 */
-	public TokenProvider(RestTemplate restTemplate) {
+	public ClientCredentialsTokenProvider(RestTemplate restTemplate) {
 		this.template = restTemplate;
 		this.uri = URI.create("https://api.podbean.com/v1/oauth/token");
 	}
@@ -59,6 +59,7 @@ public class TokenProvider {
 	 * Returns a token
 	 * @return a {@link Token}
 	 */
+	@Override
 	@SneakyThrows
 	public Token getToken() {
 		var minute = 1000 * 60;

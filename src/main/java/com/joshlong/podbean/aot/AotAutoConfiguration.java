@@ -1,7 +1,7 @@
-package fm.bootifulpodcast.podbean.aot;
+package com.joshlong.podbean.aot;
 
-import fm.bootifulpodcast.podbean.*;
-import fm.bootifulpodcast.podbean.token.Token;
+import com.joshlong.podbean.*;
+import com.joshlong.podbean.token.Token;
 import org.springframework.aot.hint.MemberCategory;
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;

@@ -1,4 +1,4 @@
-package fm.bootifulpodcast.podbean.token;
+package com.joshlong.podbean.token;
 
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;

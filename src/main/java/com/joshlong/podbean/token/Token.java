@@ -1,4 +1,4 @@
-package fm.bootifulpodcast.podbean.token;
+package com.joshlong.podbean.token;
 
 public record Token(String token, long expiration) {
 }

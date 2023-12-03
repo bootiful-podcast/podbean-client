@@ -1,7 +1,8 @@
-package fm.bootifulpodcast.podbean;
+package com.joshlong.podbean;
 
-import fm.bootifulpodcast.podbean.token.TokenInterceptor;
-import fm.bootifulpodcast.podbean.token.TokenProvider;
+import com.joshlong.podbean.token.ClientCredentialsTokenProvider;
+import com.joshlong.podbean.token.TokenInterceptor;
+import com.joshlong.podbean.token.TokenProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,7 +38,7 @@ public class TokenInterceptorTest {
 	@BeforeEach
 	public void start() {
 		this.restTemplate = new RestTemplate();
-		this.tokenProvider = new TokenProvider(this.restTemplate);
+		this.tokenProvider = new ClientCredentialsTokenProvider(this.restTemplate);
 		this.interceptor = new TokenInterceptor(this.tokenProvider);
 		this.server = this.init();
 	}
@@ -61,8 +62,11 @@ public class TokenInterceptorTest {
 	}
 
 	private MockRestServiceServer init() {
-		var server = MockRestServiceServer.bindTo(restTemplate).build();
-		server.expect(ExpectedCount.once(), requestTo(tokenProvider.getTokenUri())).andExpect(method(HttpMethod.POST))
+		var server = MockRestServiceServer.bindTo(this.restTemplate).build();
+
+		server.expect(ExpectedCount.once(),
+				requestTo(((ClientCredentialsTokenProvider) this.tokenProvider).getTokenUri()))
+				.andExpect(method(HttpMethod.POST))
 				.andRespond(MockRestResponseCreators.withSuccess(
 						"{\"access_token\": \"" + token + "\" , \"expires_in\": \"" + expiry + "\"}",
 						MediaType.APPLICATION_JSON));

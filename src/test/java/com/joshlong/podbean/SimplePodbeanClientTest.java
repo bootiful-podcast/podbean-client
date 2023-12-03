@@ -1,4 +1,4 @@
-package fm.bootifulpodcast.podbean;
+package com.joshlong.podbean;
 
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Assertions;
