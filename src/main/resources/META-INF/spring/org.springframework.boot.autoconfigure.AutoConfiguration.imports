@@ -1,2 +1,2 @@
-com.joshlong.podbean.AotAutoConfiguration
+com.joshlong.podbean.aot.AotAutoConfiguration
 com.joshlong.podbean.PodbeanAutoConfiguration
