@@ -20,11 +20,21 @@ echo "the release version is $RELEASE_VERSION "
 echo "deploying..."
 mvn versions:commit                           # accept the release version
 
-KEY_LOCAL_PATH=secret-backup.gpg
-KEY_INSTALL_PATH=$HOME/.gnupg/private-keys-v1.d/${KEY_LOCAL_PATH}
 
-echo $GPG_KEY | base64 -d  > $KEY_LOCAL_PATH
-mv ${KEY_LOCAL_PATH} "${KEY_INSTALL_PATH}"
+
+## make sure to install the gpg key from bitwarden
+LOCAL_FILE=secret.gpg
+ENCODED_KEY="$(bw get item joshlong.com-maven-gpg | jq -r '.fields[] | select(.name == "secret-backup-gpg-base64-encoded") | .value' )"
+echo $ENCODED_KEY  | base64 -d > $LOCAL_FILE
+gpg --list-keys
+gpg --import $LOCAL_FILE
+rm $LOCAL_FILE
+
+mv ~/.m2/settings.xml tmp-settings.xml || echo "no settings to preserve"
+bw get item joshlong.com-maven-gpg | jq -r '.fields[] | select(.name == "ossrh-settings.xml-base64-encoded")|  .value'  | base64 -d > ~/.m2/settings.xml
+
+##
+
 
 
 mvn -X -DskipTests=true -P publish clean deploy   || fail
@@ -43,4 +53,7 @@ SNAPSHOT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdo
 git commit -am "moving to $SNAPSHOT_VERSION"
 git push
 
-rm "${KEY_INSTALL_PATH}"
+
+mv tmp-settings.xml ~/.m2/settings.xml || echo "no settings to restore."
+
+echo "all done."
