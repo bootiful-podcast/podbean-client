@@ -30,8 +30,8 @@ mvn -DskipTests -Ppublish clean deploy
 git commit -am "releasing ${RELEASE_VERSION}" # release the main version
 
 ## RELEASE
-echo "releasing..."
 ARTIFACT_ID=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)
+echo "releasing $(mvn help:evaluate -Dexpression=project.groupId -q -DforceStdout):${ARTIFACT_ID}:${RELEASE_VERSION}"
 mvn -DskipTests -Ppublish jreleaser:release -N -pl :${ARTIFACT_ID}
 
 # clean up the mess we made.
