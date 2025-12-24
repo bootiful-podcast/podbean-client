@@ -83,7 +83,7 @@
                             <jreleaser>
                                 <release>
                                     <github>
-                                        <branch>main</branch>
+                                        <branch>master</branch>
                                     </github>
                                 </release>
                                 <signing>
