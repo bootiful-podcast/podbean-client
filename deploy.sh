@@ -31,7 +31,8 @@ git commit -am "releasing ${RELEASE_VERSION}" # release the main version
 
 ## RELEASE
 echo "releasing..."
-mvn -DskipTests -Ppublish jreleaser:release -N -pl :hints
+ARTIFACT_ID=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)
+mvn -DskipTests -Ppublish jreleaser:release -N -pl :${ARTIFACT_ID}
 
 # clean up the mess we made.
 rm -rf $HOME/.jreleaser/{private,public}
