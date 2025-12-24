@@ -4,6 +4,7 @@ import java.util.Collection;
 
 /**
  * Provides a ranged batch of episodes
+ *
  * @param episodes
  * @param offset
  * @param hasMore

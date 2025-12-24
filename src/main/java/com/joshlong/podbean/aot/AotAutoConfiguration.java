@@ -24,7 +24,8 @@ class AotAutoConfiguration {
 		@Override
 		public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
 			Set.of(Episode.class, EpisodeStatus.class, EpisodeType.class, Podcast.class, UploadAuthorization.class,
-					Token.class).forEach(clzz -> hints.reflection().registerType(clzz, MemberCategory.values()));
+					Token.class)
+				.forEach(clzz -> hints.reflection().registerType(clzz, MemberCategory.values()));
 		}
 
 	}

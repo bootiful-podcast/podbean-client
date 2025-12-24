@@ -1,18 +1,18 @@
 package com.joshlong.podbean;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.joshlong.podbean.token.TokenInterceptor;
 import com.joshlong.podbean.token.ClientCredentialsTokenProvider;
+import com.joshlong.podbean.token.TokenInterceptor;
 import com.joshlong.podbean.token.TokenProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.web.client.RestTemplateAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.boot.restclient.RestTemplateBuilder;
+import org.springframework.boot.restclient.autoconfigure.RestTemplateAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Configures the default arrangement of objects to, assuming some
@@ -54,8 +54,8 @@ class PodbeanAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	PodbeanClient podbeanClient(@Qualifier(AUTHENTICATED) RestTemplate template, ObjectMapper om) {
-		return new SimplePodbeanClient(template, om);
+	PodbeanClient podbeanClient(@Qualifier(AUTHENTICATED) RestTemplate template, JsonMapper jsonMapper) {
+		return new SimplePodbeanClient(template, jsonMapper);
 	}
 
 }

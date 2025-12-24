@@ -64,12 +64,13 @@ public class TokenInterceptorTest {
 	private MockRestServiceServer init() {
 		var server = MockRestServiceServer.bindTo(this.restTemplate).build();
 
-		server.expect(ExpectedCount.once(),
-				requestTo(((ClientCredentialsTokenProvider) this.tokenProvider).getTokenUri()))
-				.andExpect(method(HttpMethod.POST))
-				.andRespond(MockRestResponseCreators.withSuccess(
-						"{\"access_token\": \"" + token + "\" , \"expires_in\": \"" + expiry + "\"}",
-						MediaType.APPLICATION_JSON));
+		server
+			.expect(ExpectedCount.once(),
+					requestTo(((ClientCredentialsTokenProvider) this.tokenProvider).getTokenUri()))
+			.andExpect(method(HttpMethod.POST))
+			.andRespond(MockRestResponseCreators.withSuccess(
+					"{\"access_token\": \"" + token + "\" , \"expires_in\": \"" + expiry + "\"}",
+					MediaType.APPLICATION_JSON));
 		return server;
 	}
 

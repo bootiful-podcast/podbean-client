@@ -1,10 +1,8 @@
 package com.joshlong.podbean;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.boot.restclient.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpMethod;
@@ -18,6 +16,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.File;
 import java.net.URI;
@@ -35,7 +35,7 @@ public class SimplePodbeanClient implements PodbeanClient {
 
 	private final RestTemplate restTemplate = new RestTemplateBuilder().build();
 
-	private final ObjectMapper objectMapper;
+	private final JsonMapper objectMapper;
 
 	private final String episodeUri = "https://api.podbean.com/v1/episodes".trim();
 
@@ -45,12 +45,12 @@ public class SimplePodbeanClient implements PodbeanClient {
 	/**
 	 * construct a valid {@link PodbeanClient }
 	 * @param authenticatedRestTemplate a correctly configured {@link RestTemplate}
-	 * @param objectMapper an {@link ObjectMapper} from Jackson
+	 * @param jsonMapper an {@link JsonMapper} from Jackson
 	 */
 
-	public SimplePodbeanClient(RestTemplate authenticatedRestTemplate, ObjectMapper objectMapper) {
+	public SimplePodbeanClient(RestTemplate authenticatedRestTemplate, JsonMapper jsonMapper) {
 		this.authenticatedRestTemplate = authenticatedRestTemplate;
-		this.objectMapper = objectMapper;
+		this.objectMapper = jsonMapper;
 	}
 
 	@Override
@@ -73,12 +73,12 @@ public class SimplePodbeanClient implements PodbeanClient {
 		var results = new ParameterizedTypeReference<UploadAuthorization>() {
 		};
 		var filename = Objects.requireNonNull(resource.getName());
-		var uriString = UriComponentsBuilder.fromHttpUrl("https://api.podbean.com/v1/files/uploadAuthorize")
-				.queryParam("content_type", mediaType.toString())//
-				.queryParam("filename", filename)//
-				.queryParam("filesize", resource.length())//
-				.build()//
-				.toUriString();
+		var uriString = UriComponentsBuilder.fromUri(URI.create("https://api.podbean.com/v1/files/uploadAuthorize\""))
+			.queryParam("content_type", mediaType.toString())//
+			.queryParam("filename", filename)//
+			.queryParam("filesize", resource.length())//
+			.build()//
+			.toUriString();
 		Assert.isTrue(resource.exists(), "the resource must point to a valid file");
 		var responseEntity = this.authenticatedRestTemplate.exchange(uriString, HttpMethod.GET, null, results);
 		var uploadAuthorization = responseEntity.getBody();
@@ -130,7 +130,7 @@ public class SimplePodbeanClient implements PodbeanClient {
 	@SneakyThrows
 	public EpisodeRange getEpisodeRange(int offset, int limit) {
 
-		var uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl("https://api.podbean.com/v1/episodes");
+		var uriComponentsBuilder = UriComponentsBuilder.fromUriString("https://api.podbean.com/v1/episodes");
 		if (offset > 0)
 			uriComponentsBuilder.queryParam("offset", offset);
 		if (limit > 0)
@@ -166,7 +166,7 @@ public class SimplePodbeanClient implements PodbeanClient {
 				"status", status.name().toLowerCase(), //
 				"type", type.name().toLowerCase() //
 		)//
-				.forEach(bodyMap::add);
+			.forEach(bodyMap::add);
 		try {
 			var result = this.authenticatedRestTemplate.postForObject(uri, bodyMap, String.class);
 			log.info(result);
@@ -188,7 +188,7 @@ public class SimplePodbeanClient implements PodbeanClient {
 	@Deprecated
 	@SneakyThrows
 	public Collection<Episode> getEpisodes(int offset, int limit) {
-		var uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl("https://api.podbean.com/v1/episodes");
+		var uriComponentsBuilder = UriComponentsBuilder.fromUriString("https://api.podbean.com/v1/episodes");
 		if (offset > 0)
 			uriComponentsBuilder.queryParam("offset", offset);
 		if (limit > 0)
