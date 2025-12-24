@@ -2,7 +2,6 @@ package com.joshlong.podbean;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
 
 import java.net.URI;
 import java.util.Date;
@@ -13,7 +12,6 @@ import java.util.Date;
  *
  * @author Josh Long
  */
-@Data
 public class Episode {
 
 	private final String podcastId, id, title, content, status, type;
@@ -26,6 +24,71 @@ public class Episode {
 
 	@JsonProperty
 	private String object;
+
+	@Override
+	public String toString() {
+		return "Episode{" + "podcastId='" + podcastId + '\'' + ", id='" + id + '\'' + ", title='" + title + '\''
+				+ ", content='" + content + '\'' + ", status='" + status + '\'' + ", type='" + type + '\''
+				+ ", mediaUrl=" + mediaUrl + ", permalinkUrl=" + permalinkUrl + ", playerUrl=" + playerUrl
+				+ ", logoUrl=" + logoUrl + ", publishTime=" + publishTime + ", duration=" + duration + ", object='"
+				+ object + '\'' + '}';
+	}
+
+	public String getPodcastId() {
+		return podcastId;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public URI getMediaUrl() {
+		return mediaUrl;
+	}
+
+	public URI getPermalinkUrl() {
+		return permalinkUrl;
+	}
+
+	public URI getPlayerUrl() {
+		return playerUrl;
+	}
+
+	public URI getLogoUrl() {
+		return logoUrl;
+	}
+
+	public Date getPublishTime() {
+		return publishTime;
+	}
+
+	public int getDuration() {
+		return duration;
+	}
+
+	public String getObject() {
+		return object;
+	}
+
+	public void setObject(String object) {
+		this.object = object;
+	}
 
 	/**
 	 * constructs a new {@link Episode} from attributes gleemed in the JSON

@@ -1,7 +1,7 @@
 package com.joshlong.podbean.token;
 
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.restclient.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -20,8 +20,9 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @author Josh Long
  */
-@Slf4j
 public class ClientCredentialsTokenProvider implements TokenProvider {
+
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private final URI uri;
 
@@ -60,7 +61,6 @@ public class ClientCredentialsTokenProvider implements TokenProvider {
 	 * @return a {@link Token}
 	 */
 	@Override
-	@SneakyThrows
 	public Token getToken() {
 		var minute = 1000 * 60;
 		var currentToken = this.token.get();

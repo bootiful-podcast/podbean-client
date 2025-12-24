@@ -1,7 +1,7 @@
 package com.joshlong.podbean;
 
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.restclient.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.FileSystemResource;
@@ -28,14 +28,16 @@ import java.util.*;
  *
  * @author Josh Long
  */
-@Slf4j
+
 public class SimplePodbeanClient implements PodbeanClient {
+
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private final RestTemplate authenticatedRestTemplate;
 
 	private final RestTemplate restTemplate = new RestTemplateBuilder().build();
 
-	private final JsonMapper objectMapper;
+	private final JsonMapper jsonMapper;
 
 	private final String episodeUri = "https://api.podbean.com/v1/episodes".trim();
 
@@ -50,7 +52,7 @@ public class SimplePodbeanClient implements PodbeanClient {
 
 	public SimplePodbeanClient(RestTemplate authenticatedRestTemplate, JsonMapper jsonMapper) {
 		this.authenticatedRestTemplate = authenticatedRestTemplate;
-		this.objectMapper = jsonMapper;
+		this.jsonMapper = jsonMapper;
 	}
 
 	@Override
@@ -127,7 +129,6 @@ public class SimplePodbeanClient implements PodbeanClient {
 
 	// todo
 	@Override
-	@SneakyThrows
 	public EpisodeRange getEpisodeRange(int offset, int limit) {
 
 		var uriComponentsBuilder = UriComponentsBuilder.fromUriString("https://api.podbean.com/v1/episodes");
@@ -138,9 +139,9 @@ public class SimplePodbeanClient implements PodbeanClient {
 		var url = uriComponentsBuilder.build().toUriString();
 		var responseEntity = this.authenticatedRestTemplate.exchange(url, HttpMethod.GET, null, String.class);
 		var json = responseEntity.getBody();
-		var jsonNode = this.objectMapper.readTree(json);
+		var jsonNode = this.jsonMapper.readTree(json);
 		var episodesNode = jsonNode.get("episodes");
-		var episodes = objectMapper.readValue(episodesNode.toString(), new TypeReference<Collection<Episode>>() {
+		var episodes = jsonMapper.readValue(episodesNode.toString(), new TypeReference<Collection<Episode>>() {
 		});
 		var countField = jsonNode.get("count").asInt();
 		var offsetField = jsonNode.get("offset").asInt();
@@ -170,7 +171,7 @@ public class SimplePodbeanClient implements PodbeanClient {
 		try {
 			var result = this.authenticatedRestTemplate.postForObject(uri, bodyMap, String.class);
 			log.info(result);
-			Map<String, Episode> readValue = this.objectMapper.readValue(result, new TypeReference<>() {
+			Map<String, Episode> readValue = this.jsonMapper.readValue(result, new TypeReference<>() {
 			});
 			return readValue.get("episode");
 		}
@@ -186,7 +187,6 @@ public class SimplePodbeanClient implements PodbeanClient {
 
 	@Override
 	@Deprecated
-	@SneakyThrows
 	public Collection<Episode> getEpisodes(int offset, int limit) {
 		var uriComponentsBuilder = UriComponentsBuilder.fromUriString("https://api.podbean.com/v1/episodes");
 		if (offset > 0)
@@ -196,9 +196,9 @@ public class SimplePodbeanClient implements PodbeanClient {
 		var url = uriComponentsBuilder.build().toUriString();
 		var responseEntity = this.authenticatedRestTemplate.exchange(url, HttpMethod.GET, null, String.class);
 		var json = responseEntity.getBody();
-		var jsonNode = this.objectMapper.readTree(json);
+		var jsonNode = this.jsonMapper.readTree(json);
 		var episodes = jsonNode.get("episodes");
-		return objectMapper.readValue(episodes.toString(), new TypeReference<>() {
+		return jsonMapper.readValue(episodes.toString(), new TypeReference<>() {
 		});
 	}
 
@@ -208,7 +208,6 @@ public class SimplePodbeanClient implements PodbeanClient {
 		return getEpisodes(0, 0);
 	}
 
-	@SneakyThrows
 	private boolean doUploadToS3(String presignedUrl, MediaType mt, File file) {
 		var url = URI.create(presignedUrl);
 		var request = RequestEntity.put(url).contentType(mt).body(new FileSystemResource(file));

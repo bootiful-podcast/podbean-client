@@ -2,7 +2,6 @@ package com.joshlong.podbean;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,8 +12,35 @@ import java.util.Collection;
  *
  * @author Josh Long
  */
-@Data
 public class Podcast {
+
+	public String getId() {
+		return id;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public String getDesc() {
+		return desc;
+	}
+
+	public String getLogo() {
+		return logo;
+	}
+
+	public String getWebsite() {
+		return website;
+	}
+
+	public String getCategoryName() {
+		return categoryName;
+	}
+
+	public Collection<String> getAllowEpisodeType() {
+		return allowEpisodeType;
+	}
 
 	private final String id, title, desc, logo, website, categoryName;
 

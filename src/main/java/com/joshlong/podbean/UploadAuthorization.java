@@ -2,15 +2,25 @@ package com.joshlong.podbean;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
 
 /**
  * Represents an upload authorization
  *
  * @author Josh Long
  */
-@Data
 public class UploadAuthorization {
+
+	public int getExpireAt() {
+		return expireAt;
+	}
+
+	public String getFileKey() {
+		return fileKey;
+	}
+
+	public String getPresignedUrl() {
+		return presignedUrl;
+	}
 
 	private final int expireAt;
 
