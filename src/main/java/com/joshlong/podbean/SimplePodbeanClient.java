@@ -73,7 +73,7 @@ public class SimplePodbeanClient implements PodbeanClient {
 		var results = new ParameterizedTypeReference<UploadAuthorization>() {
 		};
 		var filename = Objects.requireNonNull(resource.getName());
-		var uriString = UriComponentsBuilder.fromUri(URI.create("https://api.podbean.com/v1/files/uploadAuthorize\""))
+		var uriString = UriComponentsBuilder.fromUriString("https://api.podbean.com/v1/files/uploadAuthorize")
 			.queryParam("content_type", mediaType.toString())//
 			.queryParam("filename", filename)//
 			.queryParam("filesize", resource.length())//

@@ -19,29 +19,29 @@ bw get item 'joshlong.com-maven-gpg' |  jq -r '.fields[] | select(.name == "gpg-
 
 ## STAGING
 echo "setting release version..."
-mvn build-helper:parse-version versions:set \
+mvn -DskipTests build-helper:parse-version versions:set \
   -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion}
 RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
 
 echo "the release version is $RELEASE_VERSION "
 echo "staging..."
 mvn versions:commit                           # accept the release version
-mvn -Ppublish clean deploy
+mvn -DskipTests -Ppublish clean deploy
 git commit -am "releasing ${RELEASE_VERSION}" # release the main version
 
 ## RELEASE
 echo "releasing..."
-mvn -Ppublish jreleaser:release -N -pl :hints
+mvn -DskipTests -Ppublish jreleaser:release -N -pl :hints
 
 # clean up the mess we made.
 rm -rf $HOME/.jreleaser/{private,public}
 ls -la $HOME/.jreleaser/private && echo "the private file - $HOME/.jreleaser/private has not been deleted. delete it."
 
 ## INCREMENT VERSION NUMBER FOR THE NEXT SNAPSHOT.
-mvn build-helper:parse-version versions:set \
+mvn -DskipTests build-helper:parse-version versions:set \
   -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.nextIncrementalVersion}-SNAPSHOT
 echo "the next snapshot version is $(mvn help:evaluate -Dexpression=project.version -q -DforceStdout) "
-mvn versions:commit
+mvn -DskipTests versions:commit
 SNAPSHOT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
 git commit -am "moving to $SNAPSHOT_VERSION"
 git push
